@@ -6,7 +6,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.xmlCondig.service.FileService;
+import com.xmlConfig.service.FileService;
 import com.xmlConfig.view.XmlUi;
 
 public class XmlController {

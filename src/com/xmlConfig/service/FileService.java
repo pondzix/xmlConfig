@@ -1,4 +1,4 @@
-package com.xmlCondig.service;
+package com.xmlConfig.service;
 
 import java.io.IOException;
 
