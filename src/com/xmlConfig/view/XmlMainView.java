@@ -8,7 +8,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Text;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -25,7 +24,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Component.Event;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -47,8 +45,8 @@ public class XmlMainView extends UI implements XmlView {
 	private Button saveButton;
 	private Button loadButton;
 	private ComboBox fileList;
-	private int nodeCounter = 0;
-	private final String propertyName = "Property Name";
+	private int nodeCounter;
+	private final String propertyName = "Element Name";
 	private final String valueName = "Value";
 	
 	@WebServlet(value = "/*", asyncSupported = true)
@@ -105,9 +103,9 @@ public class XmlMainView extends UI implements XmlView {
                             public void blur(BlurEvent event) {
                                 containerProperty.setValue(new Label(field.getValue()));
                                 if(itemId == 0)
-                                	controller.updateFile(propertyName, itemId, 0, field.getValue() );
+                                	controller.updateFile(propertyName, itemId, 0, field.getValue());
                                 else
-                                	controller.updateFile(propertyName, itemId, parentItemId, field.getValue() );
+                                	controller.updateFile(propertyName, itemId, parentItemId, field.getValue());
                             }
 						});
                         containerProperty.setValue(field);
@@ -141,6 +139,7 @@ public class XmlMainView extends UI implements XmlView {
 	private void initTree(){
 		if(tree != null)
 			layout.removeComponent(tree);
+		nodeCounter = 0;
 		tree = new TreeTable("XML Configuration");
 		tree.addContainerProperty(propertyName, Component.class, null);
 		tree.addContainerProperty(valueName, Component.class, null);
@@ -157,7 +156,7 @@ public class XmlMainView extends UI implements XmlView {
 	    	int parentId = id;
 	        for (int i = 0; i < children.getLength(); i++) {
 	        	Node node = children.item(i);
-	        	if(node instanceof Text)
+	        	if(!(node instanceof Element))
 		            continue;
 	        	int childId = ++nodeCounter;	            	   
 	            String childName = node.getNodeName();

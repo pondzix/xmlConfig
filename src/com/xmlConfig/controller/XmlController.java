@@ -37,11 +37,9 @@ public class XmlController {
 		try {
 			service.saveFile();
 		} catch (TransformerConfigurationException
-				| ParserConfigurationException e) {
-			// TODO Auto-generated catch block
+				| ParserConfigurationException e) {	
 			e.printStackTrace();
 		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	 
 	}

@@ -28,6 +28,7 @@ public class FileDaoImpl implements FileDao{
 
 	
 	private String directoryPath = "";
+
 	@Override 
 	public Document getXmlFile(String fileName) throws  IOException, SAXException, ParserConfigurationException {
 		File fXmlFile = new File(directoryPath + fileName);

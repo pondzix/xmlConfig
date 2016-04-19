@@ -9,7 +9,6 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.xmlConfig.dao.FileDao;
@@ -39,7 +38,7 @@ public class FileService {
 	public void updateFile(String propertyName, int itemId, int parentItemId, String newValue) {
 		Element element;
 		Attr tempNode;
-		
+
 		if(fileModel.getNodeById(itemId) instanceof Attr){
 			tempNode = (Attr) fileModel.getNodeById(itemId);
 			element = removeAttribute(tempNode, parentItemId);
@@ -51,9 +50,7 @@ public class FileService {
 			else{
 				element.setAttribute(newValue, tempNode.getValue());
 				fileModel.addItem(itemId, element.getAttributeNode(newValue));
-			}
-			
-			
+			}	
 		}else{
 			element = (Element) fileModel.getNodeById(itemId);
 			fileModel.getDoc().renameNode(element, null, newValue);	
@@ -65,6 +62,5 @@ public class FileService {
 		element.removeAttributeNode(attribute);
 		return element;
 	}
-	
 
 }

@@ -9,7 +9,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 public class XmlFileAdapter {
 	
@@ -50,7 +49,6 @@ public class XmlFileAdapter {
 	}
 	
 	public Node getNodeById(int id){
-		System.out.println(elementList.get(id));
 		return elementList.get(id);		
 	}
 	
@@ -58,14 +56,14 @@ public class XmlFileAdapter {
 		elementList.remove(id);
 	}
 	
-	private void buildElementList(Element element){
+	private void buildElementList(Node element){
 		
 		elementList.add(element);
 		addAttributesToList(element);
 		NodeList childrenList = element.getChildNodes();
 		for(int i = 0; i < childrenList.getLength(); i++)
-			if(!(childrenList.item(i) instanceof Text))
-				buildElementList((Element) childrenList.item(i));
+			if(childrenList.item(i) instanceof Element)
+				buildElementList(childrenList.item(i));
 		
 	}
 
@@ -73,16 +71,17 @@ public class XmlFileAdapter {
 		if(element.hasAttributes()){
 			NamedNodeMap attr = element.getAttributes();
 			for(int i = 0; i < attr.getLength(); i++)
-				if(!(attr instanceof Text))
+				if(attr.item(i) instanceof Attr)
 				elementList.add((Attr)attr.item(i));
 			
 		}
 	}
 
 	public void addItem(int itemId, Attr attr) {
-	elementList.add(itemId, attr);
-		
+		elementList.add(itemId, attr);	
 	}
+	
+
 	
 	
 	
