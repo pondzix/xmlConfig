@@ -25,7 +25,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 public class FileDaoImpl implements FileDao{
-
 	
 	private String directoryPath = "";
 
@@ -50,19 +49,17 @@ public class FileDaoImpl implements FileDao{
 
 	@Override
 	public void saveFile(XmlFileAdapter fileModel) throws ParserConfigurationException, TransformerException {
-        Document doc = fileModel.getDoc();
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+	        Document doc = fileModel.getDoc();
+	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new File(directoryPath + fileModel.getFileName()));
 		transformer.transform(source, result);
-		
 	}
 	
 	private DocumentBuilder createDocumentBuilder() throws ParserConfigurationException{
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        return dbFactory.newDocumentBuilder(); 
-		
+        	return dbFactory.newDocumentBuilder(); 
 	}
 
 }
