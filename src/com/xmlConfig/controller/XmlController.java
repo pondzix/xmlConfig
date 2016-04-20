@@ -24,10 +24,7 @@ public class XmlController {
 
 	public void getFile(String path) {
 		try {
-			System.out.println("sdsd");
-			Document doc;
-			if((doc = service.getFile(path)) != null)
-				view.displayFile(doc);
+			view.displayFile(service.getFile(path));
 		} catch (IOException | SAXException | ParserConfigurationException e) {
 			e.printStackTrace();
 		}		
