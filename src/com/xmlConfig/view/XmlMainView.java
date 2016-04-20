@@ -2,6 +2,8 @@ package com.xmlConfig.view;
 
 
 
+import java.util.List;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,6 +16,8 @@ import javax.servlet.annotation.WebServlet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.Property;
+import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.FieldEvents.BlurEvent;
@@ -27,6 +31,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.UI;
@@ -46,8 +51,10 @@ public class XmlMainView extends UI implements XmlView {
 	private Button loadButton;
 	private ComboBox fileList;
 	private int nodeCounter;
-	private final String propertyName = "Element Name";
-	private final String valueName = "Value";
+	private static final String ELEMENT_PROPERTY = "Element Name";
+	private static final String VALUE_PROPERTY = "Value";
+	private static final String EMPTY_FILENAME_NOTIFICATION = "File name can not be empty";
+	
 	
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = XmlMainView.class)
@@ -58,16 +65,39 @@ public class XmlMainView extends UI implements XmlView {
 	protected void init(VaadinRequest request) {	
 		initComponents();
 		addComponents();
-		setButtonListeners();	
+		setComponentListeners();	
 	}
 	
-	private void setButtonListeners(){
+	@Override
+	public void displayFile(Document doc){
+	    initTree();
+	    Element root = doc.getDocumentElement();
+	    String rootItem = root.getNodeName();
+        int parentId = nodeCounter;
+        
+        tree.addItem(new Label[]{new Label(rootItem), new Label("")}, parentId);
+        addAttributesToTree(root, parentId);	   
+        addChildrenToTree(root.getChildNodes(), parentId);
+	}
+
+	@Override
+	public void showSaveSucces() {
+		Notification.show("FILE SAVED");
+		
+	}
+	
+	private void setComponentListeners(){
 		loadButton.addClickListener(new ClickListener() {
 			
 			@Override
 			public void buttonClick(ClickEvent event) {
-				String fileName = (String)fileList.getValue();
-				controller.getFile(fileName);  	
+				try{
+					fileList.validate();
+					String fileName = (String)fileList.getValue();
+					controller.getFile(fileName);  	
+				}catch(InvalidValueException e){				
+					Notification.show(EMPTY_FILENAME_NOTIFICATION);					
+				}	
 			}
 		});
 		
@@ -78,7 +108,8 @@ public class XmlMainView extends UI implements XmlView {
 				controller.saveFile();		
 			}
 		});
-			
+		
+		fileList.addValidator(new StringLengthValidator(EMPTY_FILENAME_NOTIFICATION, 1, 15, false));
 	}
 	
 	private void setTreeListener(){
@@ -95,25 +126,29 @@ public class XmlMainView extends UI implements XmlView {
                     if (property instanceof Label) {
                     	
                     	final TextField field = new TextField();
-                        Label labelProperty = (Label)property;                   
+              
+                        Label labelProperty = (Label)property;                        
+                        field.setImmediate(true);
+                        field.setValidationVisible(true);
                         field.setValue(labelProperty.getValue());           
                         field.addBlurListener(new BlurListener() {
 					    
                         	@Override
                             public void blur(BlurEvent event) {
-                                containerProperty.setValue(new Label(field.getValue()));
-                                if(itemId == 0)
-                                	controller.updateFile(propertyName, itemId, 0, field.getValue());
-                                else
-                                	controller.updateFile(propertyName, itemId, parentItemId, field.getValue());
-                            }
+                        		containerProperty.setValue(new Label(field.getValue()));
+  
+                                    if(itemId == 0)
+                                    	controller.updateFile(propertyName, itemId, 0, field.getValue());
+                                    else
+                                    	controller.updateFile(propertyName, itemId, parentItemId, field.getValue());
+                             	
+                        	}
 						});
                         containerProperty.setValue(field);
                         field.focus();  
                     }
             }
-		});
-		
+		});	
 	}
 	
 	private void addComponents(){
@@ -131,7 +166,10 @@ public class XmlMainView extends UI implements XmlView {
 		loadButton  = new Button("LOAD");
 		fileList = new ComboBox();
 		fileList.setInputPrompt("SELECT FILE");
-		fileList.addItems(controller.getFileList());
+		List<String> names = controller.getFileList();
+		fileList.addItems(names);
+		fileList.setValue(names.get(0));
+		saveButton.setEnabled(false);
 		layout.setMargin(true);
 		setContent(layout);  
 		
@@ -141,11 +179,12 @@ public class XmlMainView extends UI implements XmlView {
 			layout.removeComponent(tree);
 		nodeCounter = 0;
 		tree = new TreeTable("XML Configuration");
-		tree.addContainerProperty(propertyName, Component.class, null);
-		tree.addContainerProperty(valueName, Component.class, null);
+		tree.addContainerProperty(ELEMENT_PROPERTY, Component.class, null);
+		tree.addContainerProperty(VALUE_PROPERTY, Component.class, null);
 		tree.setWidth("400");
 		tree.setEditable(true);
 		tree.setImmediate(true);
+		saveButton.setEnabled(true);
 		setTreeListener();
 		layout.addComponent(tree);
 		
@@ -182,16 +221,7 @@ public class XmlMainView extends UI implements XmlView {
 	        }
 	}
 
-	public void displayFile(Document doc){
-	    initTree();
-	    Element root = doc.getDocumentElement();
-	    String rootItem = root.getNodeName();
-        int parentId = nodeCounter;
-        
-        tree.addItem(new Label[]{new Label(rootItem), new Label("")}, parentId);
-        addAttributesToTree(root, parentId);	   
-        addChildrenToTree(root.getChildNodes(), parentId);
-	}
+
 
 
 }

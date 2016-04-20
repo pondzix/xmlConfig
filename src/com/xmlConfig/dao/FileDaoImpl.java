@@ -42,7 +42,8 @@ public class FileDaoImpl implements FileDao{
 		File directory = new File(directoryPath);
 		File[] fileList = directory.listFiles();
 		for(File f: fileList)
-			fileNameList.add(f.getName());
+			if(f.getName().endsWith(".xml"))
+				fileNameList.add(f.getName());
 		
 		return fileNameList;
 	}

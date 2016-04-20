@@ -7,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.xmlConfig.service.FileService;
@@ -23,7 +24,10 @@ public class XmlController {
 
 	public void getFile(String path) {
 		try {
-			view.displayFile(service.getFile(path));
+			System.out.println("sdsd");
+			Document doc;
+			if((doc = service.getFile(path)) != null)
+				view.displayFile(doc);
 		} catch (IOException | SAXException | ParserConfigurationException e) {
 			e.printStackTrace();
 		}		
@@ -36,6 +40,7 @@ public class XmlController {
 	public void saveFile() {
 		try {
 			service.saveFile();
+			view.showSaveSucces();
 		} catch (TransformerConfigurationException
 				| ParserConfigurationException e) {	
 			e.printStackTrace();

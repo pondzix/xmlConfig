@@ -22,9 +22,12 @@ public class FileService {
 	
 	
 	public Document getFile(String fileName) throws IOException, SAXException, ParserConfigurationException {
-		Document doc =  fileDao.getXmlFile(fileName);
-		fileModel = new XmlFileAdapter(doc, fileName);
-		return doc;
+		if(!fileName.isEmpty()){
+			Document doc =  fileDao.getXmlFile(fileName);
+			fileModel = new XmlFileAdapter(doc, fileName);
+			return doc;
+		}
+		return null;
 	}
 	
 	public List<String> getFileList() {	

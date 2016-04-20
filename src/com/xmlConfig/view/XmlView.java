@@ -6,4 +6,6 @@ public interface XmlView {
 	
 	public void displayFile(Document doc);
 
+	public void showSaveSucces();
+
 }

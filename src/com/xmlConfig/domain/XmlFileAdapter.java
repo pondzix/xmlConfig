@@ -80,12 +80,4 @@ public class XmlFileAdapter {
 	public void addItem(int itemId, Attr attr) {
 		elementList.add(itemId, attr);	
 	}
-	
-
-	
-	
-	
-	
-	
-
 }
