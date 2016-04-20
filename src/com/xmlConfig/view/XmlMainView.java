@@ -70,20 +70,19 @@ public class XmlMainView extends UI implements XmlView {
 	
 	@Override
 	public void displayFile(Document doc){
-	    initTree();
-	    Element root = doc.getDocumentElement();
-	    String rootItem = root.getNodeName();
-        int parentId = nodeCounter;
-        
-        tree.addItem(new Label[]{new Label(rootItem), new Label("")}, parentId);
-        addAttributesToTree(root, parentId);	   
-        addChildrenToTree(root.getChildNodes(), parentId);
+	        initTree();
+	        Element root = doc.getDocumentElement();
+	        String rootItem = root.getNodeName();
+	        int parentId = nodeCounter;
+	        
+	        tree.addItem(new Label[]{new Label(rootItem), new Label("")}, parentId);
+	        addAttributesToTree(root, parentId);	   
+	        addChildrenToTree(root.getChildNodes(), parentId);
 	}
 
 	@Override
 	public void showSaveSucces() {
 		Notification.show("FILE SAVED");
-		
 	}
 	
 	private void setComponentListeners(){
@@ -113,48 +112,48 @@ public class XmlMainView extends UI implements XmlView {
 	}
 	
 	private void setTreeListener(){
-			tree.addItemClickListener(new ItemClickListener() {
+		tree.addItemClickListener(new ItemClickListener() {
 			
-			@SuppressWarnings("unchecked")
-			@Override
-            public void itemClick(ItemClickEvent event) {	
-                final Integer itemId = (Integer) event.getItemId();
-                final Integer parentItemId = (Integer) tree.getParent(itemId);                               
-                final String propertyName = (String) event.getPropertyId();
-                final Property<Component> containerProperty = tree.getContainerProperty(itemId, propertyName);
-                Component property = containerProperty.getValue();
-                    if (property instanceof Label) {
-                    	
-                    	final TextField field = new TextField();
-              
-                        Label labelProperty = (Label)property;                        
-                        field.setImmediate(true);
-                        field.setValidationVisible(true);
-                        field.setValue(labelProperty.getValue());           
-                        field.addBlurListener(new BlurListener() {
-					    
-                        	@Override
-                            public void blur(BlurEvent event) {
-                        		containerProperty.setValue(new Label(field.getValue()));
-  
-                                    if(itemId == 0)
-                                    	controller.updateFile(propertyName, itemId, 0, field.getValue());
-                                    else
-                                    	controller.updateFile(propertyName, itemId, parentItemId, field.getValue());
-                             	
-                        	}
-						});
-                        containerProperty.setValue(field);
-                        field.focus();  
-                    }
-            }
+		@SuppressWarnings("unchecked")
+		@Override
+                public void itemClick(ItemClickEvent event) {	
+	                final Integer itemId = (Integer) event.getItemId();
+	                final Integer parentItemId = (Integer) tree.getParent(itemId);                               
+	                final String propertyName = (String) event.getPropertyId();
+	                final Property<Component> containerProperty = tree.getContainerProperty(itemId, propertyName);
+	                Component property = containerProperty.getValue();
+	                    if (property instanceof Label) {
+	                    	
+	                    	final TextField field = new TextField();
+	              
+	                        Label labelProperty = (Label)property;                        
+	                        field.setImmediate(true);
+	                        field.setValidationVisible(true);
+	                        field.setValue(labelProperty.getValue());           
+	                        field.addBlurListener(new BlurListener() {
+						    
+	                        	@Override
+	                            public void blur(BlurEvent event) {
+	                        	    containerProperty.setValue(new Label(field.getValue()));
+	  
+	                                    if(itemId == 0)
+	                                    	controller.updateFile(propertyName, itemId, 0, field.getValue());
+	                                    else
+	                                    	controller.updateFile(propertyName, itemId, parentItemId, field.getValue());
+	                             	
+	                        	}
+							});
+	                        containerProperty.setValue(field);
+	                        field.focus();  
+	                    }
+	            }
 		});	
 	}
 	
 	private void addComponents(){
 		filePanel.addComponent(fileList);
-	    filePanel.addComponent(loadButton);
-	    filePanel.addComponent(saveButton); 
+	        filePanel.addComponent(loadButton);
+	        filePanel.addComponent(saveButton); 
 		layout.addComponent(filePanel);
 		
 	}
@@ -191,19 +190,19 @@ public class XmlMainView extends UI implements XmlView {
 	}
 	
 	private void addChildrenToTree(NodeList children, int id) {
-	    if (children.getLength() > 0) {	
-	    	int parentId = id;
-	        for (int i = 0; i < children.getLength(); i++) {
-	        	Node node = children.item(i);
-	        	if(!(node instanceof Element))
-		            continue;
-	        	int childId = ++nodeCounter;	            	   
-	            String childName = node.getNodeName();
-	            tree.addItem(new Label[]{new Label(childName), new Label("")}, childId);
-	            tree.setParent(childId, parentId);
-	            addAttributesToTree(node, childId);
-	            addChildrenToTree(node.getChildNodes(), childId);
-	        }
+	        if (children.getLength() > 0) {	
+		    int parentId = id;
+		       for (int i = 0; i < children.getLength(); i++) {
+		       	    Node node = children.item(i);
+		        	if(!(node instanceof Element))
+			            continue;
+		        	int childId = ++nodeCounter;	            	   
+		            String childName = node.getNodeName();
+		            tree.addItem(new Label[]{new Label(childName), new Label("")}, childId);
+		            tree.setParent(childId, parentId);
+		            addAttributesToTree(node, childId);
+		            addChildrenToTree(node.getChildNodes(), childId);
+		        }
 	    }
 	}
 	
