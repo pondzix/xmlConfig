@@ -50,7 +50,7 @@ public class FileDaoImpl implements FileDao{
 
 	@Override
 	public void saveFile(XmlFileAdapter fileModel) throws ParserConfigurationException, TransformerException {
-        Document doc = fileModel.getDoc();
+        Document doc = fileModel.getDocument();
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);

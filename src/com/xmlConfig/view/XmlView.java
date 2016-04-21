@@ -8,4 +8,10 @@ public interface XmlView {
 
 	public void showSaveSucces();
 
+	public void showSaveFail();
+
+	public void showLoadingFileFail();
+
+	public void showModificationFail();
+
 }

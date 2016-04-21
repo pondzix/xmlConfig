@@ -12,32 +12,22 @@ import org.w3c.dom.NodeList;
 
 public class XmlFileAdapter {
 	
-	private Element rootElement;
-	private Document doc;
+	private Document document;
 	private String fileName;
 	private List<Node> elementList = new ArrayList<>();
 
-	public XmlFileAdapter(Document doc, String fileName) {
-		this.setDoc(doc);
+	public XmlFileAdapter(Document document, String fileName) {
+		this.document = document;
 		this.fileName = fileName;
-		rootElement = doc.getDocumentElement();
-		buildElementList(rootElement);
+		buildElementList(document.getDocumentElement());
 	}
 
-	public Element getRootElement() {
-		return rootElement;
+	public Document getDocument() {
+		return document;
 	}
 
-	public void setRootElement(Element rootElement) {
-		this.rootElement = rootElement;
-	}
-
-	public Document getDoc() {
-		return doc;
-	}
-
-	public void setDoc(Document doc) {
-		this.doc = doc;
+	public void setDoc(Document document) {
+		this.document = document;
 	}
 
 	public String getFileName() {

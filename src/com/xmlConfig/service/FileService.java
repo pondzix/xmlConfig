@@ -8,12 +8,14 @@ import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.xmlConfig.dao.FileDao;
 import com.xmlConfig.dao.FileDaoImpl;
+import com.xmlConfig.domain.ItemDTO;
 import com.xmlConfig.domain.XmlFileAdapter;
+import com.xmlConfig.exception.IllegalFileModification;
 
 public class FileService {
 
@@ -37,33 +39,18 @@ public class FileService {
 	public void saveFile() throws ParserConfigurationException, TransformerException {
 			fileDao.saveFile(fileModel);	
 	}
-	
-	public void updateFile(String propertyName, int itemId, int parentItemId, String newValue) {
-		Element element;
-		Attr tempNode;
-
-		if(fileModel.getNodeById(itemId) instanceof Attr){
-			tempNode = (Attr) fileModel.getNodeById(itemId);
-			element = removeAttribute(tempNode, parentItemId);
-			fileModel.removeItem(itemId);
-			if(propertyName.equals("Value")){
-				element.setAttribute(tempNode.getName(), newValue);	
-				fileModel.addItem(itemId, element.getAttributeNode(tempNode.getName()));
-			}
-			else{
-				element.setAttribute(newValue, tempNode.getValue());
-				fileModel.addItem(itemId, element.getAttributeNode(newValue));
-			}	
-		}else{
-			element = (Element) fileModel.getNodeById(itemId);
-			fileModel.getDoc().renameNode(element, null, newValue);	
-		}
+		
+	public void updateFile(ItemDTO item) throws IllegalFileModification{
+		Node node = fileModel.getNodeById(item.getItemId());
+		
+		if(node instanceof Attr)
+			update(new AttributeUpdateManager(fileModel), item);
+		else
+			update(new ElementUpdateManager(fileModel), item);			
 	}
 	
-	private Element removeAttribute(Attr attribute,  int parentItemId){
-		Element element = (Element) fileModel.getNodeById(parentItemId);
-		element.removeAttributeNode(attribute);
-		return element;
+	private void update(UpdateManager manager, ItemDTO item) throws IllegalFileModification{
+		manager.update(item);		
 	}
 
 }
