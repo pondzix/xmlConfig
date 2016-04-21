@@ -31,6 +31,9 @@
 
 		<!-- TestBench 4 -->
 		<dependency org="com.vaadin" name="vaadin-testbench-api" rev="latest.release" conf="nodeploy -> default" />
+		<dependency org="com.vaadin.addon" name="vaadin-context-menu" rev="0.7.3" />
+
+
 
 		<!-- Precompiled DefaultWidgetSet -->
 		<dependency org="com.vaadin" name="vaadin-client-compiled"
