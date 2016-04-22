@@ -13,9 +13,16 @@ import org.w3c.dom.NamedNodeMap;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.vaadin.addon.contextmenu.ContextMenu;
+import com.vaadin.addon.contextmenu.ContextMenu.ContextMenuOpenListener;
+import com.vaadin.addon.contextmenu.ContextMenu.ContextMenuOpenListener.ContextMenuOpenEvent;
+import com.vaadin.addon.contextmenu.GridContextMenu;
+import com.vaadin.addon.contextmenu.Menu;
+import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.client.ui.VScrollTable.ContextMenuDetails;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -26,6 +33,7 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.MouseEventDetails.MouseButton;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -53,6 +61,7 @@ public class XmlMainView extends UI implements XmlView {
 	private Button saveButton;
 	private Button loadButton;
 	private ComboBox fileList;
+	private ContextMenu contextMenu;
 	private int nodeCounter;
 	private static final String ELEMENT_PROPERTY = "Element Name";
 	private static final String VALUE_PROPERTY = "Value";
@@ -60,7 +69,7 @@ public class XmlMainView extends UI implements XmlView {
 	
 	
 	@WebServlet(value = "/*", asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = false, ui = XmlMainView.class)
+	@VaadinServletConfiguration(productionMode = false, ui = XmlMainView.class, widgetset = "com.xmlConfig.view.widgetset.FirstvaadWidgetset")
 	public static class Servlet extends VaadinServlet {
 	}
  
@@ -68,7 +77,8 @@ public class XmlMainView extends UI implements XmlView {
 	protected void init(VaadinRequest request) {	
 		initComponents();
 		addComponents();
-		setComponentListeners();	
+		setComponentListeners();
+		
 	}
 	
 	@Override
@@ -166,8 +176,11 @@ public class XmlMainView extends UI implements XmlView {
 	                        containerProperty.setValue(field);
 	                        field.focus();  
 	                    }
-				}              
+				}else{
+				}
             }
+
+			
 		});	
 	}
 	
@@ -176,7 +189,6 @@ public class XmlMainView extends UI implements XmlView {
 	    filePanel.addComponent(loadButton);
 	    filePanel.addComponent(saveButton); 
 		layout.addComponent(filePanel);
-		
 	}
 	
 	private void initComponents(){
@@ -206,22 +218,52 @@ public class XmlMainView extends UI implements XmlView {
 		tree.setImmediate(true);
 		saveButton.setEnabled(true);
 		setTreeListener();
+		initContextMenu();
 		layout.addComponent(tree);	
 	}
 	
+	private void initContextMenu() {
+		contextMenu = new ContextMenu(tree, true);
+		MenuItem item  = contextMenu.addItem("Add new element", new Menu.Command() {	
+			
+			@Override			
+			public void menuSelected(MenuItem selectedItem) {
+				//selectedItem.
+			}
+		});	
+		
+        contextMenu.addItem("Add new attribute", new Menu.Command() {	
+        	
+			@Override
+			public void menuSelected(MenuItem selectedItem) {			
+				//selectedItem.
+			}
+		});	
+        
+        contextMenu.addContextMenuOpenListener(new ContextMenuOpenListener() {
+			
+			@Override
+			public void onContextMenuOpen(ContextMenuOpenEvent event) {
+				
+			}
+		});
+		
+	}
+
 	private void addChildrenToTree(NodeList children, int id) {
 	    if (children.getLength() > 0) {	
 	    	int parentId = id;
 	        for (int i = 0; i < children.getLength(); i++) {
 	        	Node node = children.item(i);
-	        	if(!(node instanceof Element))
-		            continue;
-	        	int childId = ++nodeCounter;	            	   
-	            String childName = node.getNodeName();
-	            tree.addItem(new Label[]{new Label(childName), new Label("")}, childId);
-	            tree.setParent(childId, parentId);
-	            addAttributesToTree(node, childId);
-	            addChildrenToTree(node.getChildNodes(), childId);
+	        	if(node instanceof Element){
+	        		int childId = ++nodeCounter;	            	   
+		            String childName = node.getNodeName();
+		            Label lab = new Label(childName);
+		            tree.addItem(new Label[]{lab, new Label("")}, childId);
+		            tree.setParent(childId, parentId);
+		            addAttributesToTree(node, childId);
+		            addChildrenToTree(node.getChildNodes(), childId);
+	        	}	        	
 	        }
 	    }
 	}	
@@ -238,6 +280,7 @@ public class XmlMainView extends UI implements XmlView {
 	        	}
 	        }
 	}
+
 
 	
 
