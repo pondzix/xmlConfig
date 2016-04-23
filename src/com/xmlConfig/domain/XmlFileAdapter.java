@@ -67,7 +67,11 @@ public class XmlFileAdapter {
 		}
 	}
 
-	public void addItem(int itemId, Attr attr) {
-		elementList.add(itemId, attr);	
+	public void addItem(int itemId, Node element) {
+		elementList.add(itemId, element);	
+	}
+	
+	public void addItem(Node element){
+		elementList.add(element);	
 	}
 }

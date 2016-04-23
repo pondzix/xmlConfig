@@ -8,7 +8,7 @@ import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
 
-import com.xmlConfig.domain.ItemDTO;
+import com.xmlConfig.domain.Command;
 import com.xmlConfig.exception.IllegalFileModification;
 import com.xmlConfig.service.FileService;
 import com.xmlConfig.view.XmlView;
@@ -43,9 +43,28 @@ public class XmlController {
 		}	 
 	}
 
-	public void updateFile(ItemDTO item) {
+	public void updateFile(Command item) {
 		try {
-			service.updateFile(item);
+			service.updateFileItem(item);
+		} catch (IllegalFileModification e) {
+			view.showModificationFail();
+		}
+	}
+
+	public void addElement(Command item) {
+		try {
+			service.updateFileItem(item);
+			view.createNewElement();
+		} catch (IllegalFileModification e) {
+			view.showModificationFail();
+		}
+		
+	}
+
+	public void addAttribute(Command item) {
+		try {
+			service.updateFileItem(item);
+			view.createNewAttribute();
 		} catch (IllegalFileModification e) {
 			view.showModificationFail();
 		}

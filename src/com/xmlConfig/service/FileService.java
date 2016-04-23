@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 
 import com.xmlConfig.dao.FileDao;
 import com.xmlConfig.dao.FileDaoImpl;
-import com.xmlConfig.domain.ItemDTO;
+import com.xmlConfig.domain.Command;
 import com.xmlConfig.domain.XmlFileAdapter;
 import com.xmlConfig.exception.IllegalFileModification;
 
@@ -39,8 +39,27 @@ public class FileService {
 	public void saveFile() throws ParserConfigurationException, TransformerException {
 			fileDao.saveFile(fileModel);	
 	}
+	
+	public void addChildElementToSelectedItem(int selectedItemId){
+		//Node node = fileModel.getNodeById(item.getItemId());
 		
-	public void updateFile(ItemDTO item) throws IllegalFileModification{
+		
+	}
+	
+	public void addAttributeToSelectedItem(int selectedItemId){
+		
+		
+		
+	}
+	
+	
+	public void removeItem(){
+		
+		
+		
+	}
+		
+	public void updateFileItem(Command item) throws IllegalFileModification{
 		Node node = fileModel.getNodeById(item.getItemId());
 		
 		if(node instanceof Attr)
@@ -49,7 +68,7 @@ public class FileService {
 			update(new ElementUpdateManager(fileModel), item);			
 	}
 	
-	private void update(UpdateManager manager, ItemDTO item) throws IllegalFileModification{
+	private void update(UpdateManager manager, Command item) throws IllegalFileModification{
 		manager.update(item);		
 	}
 

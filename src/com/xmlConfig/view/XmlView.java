@@ -13,5 +13,9 @@ public interface XmlView {
 	public void showLoadingFileFail();
 
 	public void showModificationFail();
+	
+	public void createNewElement();
+	
+	public void createNewAttribute();
 
 }
