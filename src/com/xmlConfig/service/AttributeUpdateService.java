@@ -18,24 +18,22 @@ public class AttributeUpdateService implements UpdateService{
 	}
 	
 	@Override
-	public void update(Command item){
-		ActionType type = item.getActionType();		
-		Attr attribute = (Attr) fileModel.getNodeById(item.getItemId());
-		Element element = (Element) fileModel.getNodeById(item.getParentItemId());
+	public void update(Command command){
+		ActionType type = command.getActionType();		
+		Attr attribute = (Attr) fileModel.getNodeById(command.getItemId());
+		Element element = (Element) fileModel.getNodeById(command.getParentItemId());
 		element.removeAttributeNode(attribute);
 		
 		switch(type){	
 			case CHANGE_VALUE:
-				element.setAttribute(attribute.getName(), item.getNewValue());	
-				fileModel.updateItem(item.getItemId(), element.getAttributeNode(attribute.getName()));
+				element.setAttribute(attribute.getName(), command.getNewValue());	
+				fileModel.updateItem(command.getItemId(), element.getAttributeNode(attribute.getName()));
 				break;
 				
 			case CHANGE_NAME:
-				element.setAttribute(item.getNewValue(), attribute.getValue());
-				fileModel.updateItem(item.getItemId(), element.getAttributeNode(item.getNewValue()));			
-				break;
-			default:
-				break;			
+				element.setAttribute(command.getNewValue(), attribute.getValue());
+				fileModel.updateItem(command.getItemId(), element.getAttributeNode(command.getNewValue()));			
+				break;		
 		}				
 	}
 
@@ -49,5 +47,12 @@ public class AttributeUpdateService implements UpdateService{
 	public void addAttribute(Node parent) throws IllegalFileModification {
 		throw new IllegalFileModification();
 		
+	}
+
+	@Override
+	public void remove(Command command) {
+		Attr attribute = (Attr) fileModel.getNodeById(command.getItemId());
+		Element element = (Element) fileModel.getNodeById(command.getParentItemId());
+		element.removeAttributeNode(attribute);	
 	}
 }

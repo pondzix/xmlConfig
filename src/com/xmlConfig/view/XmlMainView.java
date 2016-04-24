@@ -67,6 +67,7 @@ public class XmlMainView extends UI implements XmlView {
 	private Map <String, ActionType> actionMap = new HashMap<>();
 	private int nodeCounter;
 	private int selectedItemId;
+	private int parentOfSelectedItem;
 	private final String ELEMENT_PROPERTY = "Element Name";
 	private final String VALUE_PROPERTY = "Value";
 	private final String EMPTY_FILENAME_NOTIFICATION = "File name can not be empty";
@@ -188,6 +189,7 @@ public class XmlMainView extends UI implements XmlView {
 	private Command prepareCommand(){
 		Command command = new Command();
 		command.setItemId(selectedItemId);	
+		command.setParentItemId(parentOfSelectedItem);
 		return command;
 	}
 
@@ -270,20 +272,17 @@ public class XmlMainView extends UI implements XmlView {
 			@Override
             public void itemClick(ItemClickEvent event) {
 				
-				int itemId = (int) event.getItemId();	
-				if(event.getButton() == MouseButton.LEFT){										
-		            int parentItemId = (itemId == 0) ? itemId : (int) tree.getParent(itemId);                               
+				selectedItemId = (int) event.getItemId();	
+				parentOfSelectedItem = (selectedItemId == 0) ? selectedItemId : (int) tree.getParent(selectedItemId);   
+				if(event.getButton() == MouseButton.LEFT){												                                       
 		            String propertyName = (String) event.getPropertyId();
-		            Property<Component> containerProperty = tree.getContainerProperty(itemId, propertyName);
-		            Command command = new Command(actionMap.get(propertyName), itemId, parentItemId);
+		            Property<Component> containerProperty = tree.getContainerProperty(selectedItemId, propertyName);
+		            Command command = new Command(actionMap.get(propertyName), selectedItemId, parentOfSelectedItem);
 		            Component component = containerProperty.getValue();
 		            		            	
 		            if (component instanceof Label) 
 		                 changeLabelToTextField((Label) component, containerProperty, command);	    				
-				}
-				else
-					selectedItemId = itemId;
-				                	                 										
+				}			                	                 										
             }			
 		});	
 	}
@@ -329,7 +328,7 @@ public class XmlMainView extends UI implements XmlView {
         	
 			@Override
 			public void menuSelected(MenuItem selectedItem) {	
-				controller.removeItem(selectedItemId);
+				controller.removeItem(prepareCommand());
 			}		
 		});	
 	}

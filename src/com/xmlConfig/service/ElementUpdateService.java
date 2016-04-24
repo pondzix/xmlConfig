@@ -5,6 +5,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+
 import com.xmlConfig.domain.ActionType;
 import com.xmlConfig.domain.Command;
 import com.xmlConfig.domain.XmlFileAdapter;
@@ -30,8 +31,6 @@ public class ElementUpdateService implements UpdateService{
 			case CHANGE_NAME:
 				element = (Element) fileModel.getNodeById(command.getItemId());
 				fileModel.getDocument().renameNode(element, null, command.getNewValue());	
-				break;
-			default:
 				break;				
 		}
 	}
@@ -49,5 +48,11 @@ public class ElementUpdateService implements UpdateService{
 		Attr attribute = fileModel.getDocument().createAttribute("NEW");
 		element.setAttributeNode(attribute);
 		fileModel.addItem(attribute);			
+	}
+
+	@Override
+	public void remove(Command command) {
+		Element element = (Element) fileModel.getNodeById(command.getItemId());
+		element.getParentNode().removeChild(element);	
 	}
 }

@@ -55,6 +55,11 @@ public class FileService {
 		getUpdateServiceByNodeType(node).update(command);
 		
 	}
+	
+	public void removeItem(Command command) {
+		Node node = fileModel.getNodeById(command.getItemId());
+		getUpdateServiceByNodeType(node).remove(command);		
+	}
 		
 	private  UpdateService getUpdateServiceByNodeType(Node node){
 		
@@ -64,8 +69,6 @@ public class FileService {
 			return new ElementUpdateService(fileModel);			
 	}
 
-	public void removeItem(int selectedItemId) {
-		fileModel.removeItem(selectedItemId);		
-	}
+	
 
 }

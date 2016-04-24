@@ -13,4 +13,6 @@ public interface UpdateService {
 	
 	public void addAttribute(Node parent) throws IllegalFileModification;
 	
+	public void remove(Command command);
+	
 }

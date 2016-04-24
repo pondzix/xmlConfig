@@ -70,8 +70,8 @@ public class XmlController {
 		}
 	}
 
-	public void removeItem(int selectedItemId) {
-		service.removeItem(selectedItemId);
+	public void removeItem(Command command) {
+		service.removeItem(command);
 		view.removeItem();		
 	}
 	
