@@ -40,36 +40,32 @@ public class FileService {
 			fileDao.saveFile(fileModel);	
 	}
 	
-	public void addChildElementToSelectedItem(int selectedItemId){
-		//Node node = fileModel.getNodeById(item.getItemId());
-		
-		
+	public void addChildElementToSelectedItem(Command command) throws IllegalFileModification{
+		Node node = fileModel.getNodeById(command.getItemId());
+		getUpdateServiceByNodeType(node).addElement(node);		
 	}
 	
-	public void addAttributeToSelectedItem(int selectedItemId){
-		
-		
-		
+	public void addAttributeToSelectedItem(Command command) throws IllegalFileModification{
+		Node node = fileModel.getNodeById(command.getItemId());
+		getUpdateServiceByNodeType(node).addAttribute(node);
 	}
 	
-	
-	public void removeItem(){
-		
-		
+	public void updateNameOrValue(Command command) throws IllegalFileModification{
+		Node node = fileModel.getNodeById(command.getItemId());
+		getUpdateServiceByNodeType(node).update(command);
 		
 	}
 		
-	public void updateFileItem(Command item) throws IllegalFileModification{
-		Node node = fileModel.getNodeById(item.getItemId());
+	private  UpdateService getUpdateServiceByNodeType(Node node){
 		
 		if(node instanceof Attr)
-			update(new AttributeUpdateManager(fileModel), item);
+			return new AttributeUpdateService(fileModel);
 		else
-			update(new ElementUpdateManager(fileModel), item);			
+			return new ElementUpdateService(fileModel);			
 	}
-	
-	private void update(UpdateManager manager, Command item) throws IllegalFileModification{
-		manager.update(item);		
+
+	public void removeItem(int selectedItemId) {
+		fileModel.removeItem(selectedItemId);		
 	}
 
 }

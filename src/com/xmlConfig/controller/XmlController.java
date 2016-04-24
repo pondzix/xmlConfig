@@ -43,17 +43,17 @@ public class XmlController {
 		}	 
 	}
 
-	public void updateFile(Command item) {
+	public void updateNameOrValue(Command command) {
 		try {
-			service.updateFileItem(item);
+			service.updateNameOrValue(command);
 		} catch (IllegalFileModification e) {
 			view.showModificationFail();
 		}
 	}
 
-	public void addElement(Command item) {
+	public void addElement(Command command) {
 		try {
-			service.updateFileItem(item);
+			service.addChildElementToSelectedItem(command);
 			view.createNewElement();
 		} catch (IllegalFileModification e) {
 			view.showModificationFail();
@@ -61,13 +61,18 @@ public class XmlController {
 		
 	}
 
-	public void addAttribute(Command item) {
+	public void addAttribute(Command command) {
 		try {
-			service.updateFileItem(item);
+			service.addAttributeToSelectedItem(command);
 			view.createNewAttribute();
 		} catch (IllegalFileModification e) {
 			view.showModificationFail();
 		}
+	}
+
+	public void removeItem(int selectedItemId) {
+		service.removeItem(selectedItemId);
+		view.removeItem();		
 	}
 	
 	

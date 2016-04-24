@@ -8,7 +8,6 @@ public class Command {
 	private String newValue;
 	
 	public Command() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Command(ActionType actionType, int itemId, int parentItemId,

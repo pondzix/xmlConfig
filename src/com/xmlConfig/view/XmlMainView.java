@@ -2,7 +2,9 @@ package com.xmlConfig.view;
 
 
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +21,12 @@ import com.vaadin.addon.contextmenu.Menu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
+import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.event.ContextClickEvent.ContextClickNotifier;
 import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.FieldEvents.BlurEvent;
@@ -52,6 +57,7 @@ public class XmlMainView extends UI implements XmlView {
 
 	private XmlController controller = new XmlController(this);
 	private TreeTable tree;
+	private HierarchicalContainer container;
 	private VerticalLayout layout;
 	private HorizontalLayout filePanel;
 	private Button saveButton;
@@ -84,7 +90,7 @@ public class XmlMainView extends UI implements XmlView {
 	    initTree();
 	    Element root = doc.getDocumentElement();
         int parentId = nodeCounter;
-        tree.addItem(getTreeComponentItem(root.getNodeName(), root.getNodeValue()), parentId);
+        tree.addItem(getArrayOfTreeComponent(root.getNodeName(), root.getNodeValue()), parentId);
         addAttributesToTree(root, parentId);	   
         addChildrenToTree(root.getChildNodes(), parentId);
 	}
@@ -120,11 +126,116 @@ public class XmlMainView extends UI implements XmlView {
 		tree.setChildrenAllowed(nodeCounter, false);		
 	}
 	
+	@Override
+	public void removeItem() {
+		container.removeItemRecursively(selectedItemId);		
+	}
+	
 	private void addNewItemToTree(){
-		tree.addItem(getTreeComponentItem(GENERATED_NAME, ""), ++nodeCounter);
+		tree.addItem(getArrayOfTreeComponent(GENERATED_NAME, ""), ++nodeCounter);
 		tree.setParent(nodeCounter, selectedItemId);
 	}
 	
+	
+	private void addComponents(){
+		filePanel.addComponent(fileList);
+	    filePanel.addComponent(loadButton);
+	    filePanel.addComponent(saveButton); 
+		layout.addComponent(filePanel);
+	}
+	
+	private void initComponents(){
+		List<String> names = controller.getFileList();
+		
+		fileList = new ComboBox();
+		fileList.setInputPrompt("SELECT FILE");
+		fileList.addItems(names);
+		fileList.setValue(names.get(0));
+		
+		filePanel = new HorizontalLayout();
+		layout = new VerticalLayout();
+		layout.setMargin(true);
+		setContent(layout); 
+			
+		saveButton  = new Button("SAVE");
+		saveButton.setEnabled(false);
+		loadButton  = new Button("LOAD");
+				
+	}
+	
+	
+	private void initTree(){
+		if(tree != null)
+			layout.removeComponent(tree);			
+		container = new HierarchicalContainer();
+		
+		tree = new TreeTable("XML Configuration", container);
+		tree.addContainerProperty(ELEMENT_PROPERTY, Component.class, null);
+		tree.addContainerProperty(VALUE_PROPERTY, Component.class, null);
+		tree.setWidth("400");
+		tree.setEditable(true);
+		tree.setImmediate(true);
+				
+		saveButton.setEnabled(true);
+		actionMap.put(ELEMENT_PROPERTY, ActionType.CHANGE_NAME);
+		actionMap.put(VALUE_PROPERTY, ActionType.CHANGE_VALUE);
+		setTreeListener();
+		initContextMenu();
+		nodeCounter = 0;
+		layout.addComponent(tree);	
+	}
+	
+	private Command prepareCommand(){
+		Command command = new Command();
+		command.setItemId(selectedItemId);	
+		return command;
+	}
+
+	private void addChildrenToTree(NodeList children, int id) {
+	    if (children.getLength() > 0) {	
+	    	int parentId = id;
+	        for (int i = 0; i < children.getLength(); i++) {
+	        	Node node = children.item(i);
+	        	if(node instanceof Element){
+	        		int childId = ++nodeCounter;	            	   
+		            tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue()), childId);
+		            tree.setParent(childId, parentId);
+		            addAttributesToTree(node, childId);
+		            addChildrenToTree(node.getChildNodes(), childId);
+	        	}	        	
+	        }
+	    }
+	}	
+	
+	private  void addAttributesToTree(Node node, int parentId){
+		 if(node.hasAttributes()){
+	        	NamedNodeMap attr = node.getAttributes();
+	        	for(int j = 0; j < attr.getLength(); j++){
+	        		int childId = ++nodeCounter;
+	        		tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue()), childId);
+	        		tree.setParent(childId, parentId);
+	        		tree.setChildrenAllowed(childId, false);
+	        	}
+	        }
+	}
+
+	private Component[] getArrayOfTreeComponent(String name, String value){
+		Label[] components = new Label[]{new Label(name), new Label(value)};
+		setAsContextMenuOf(components);
+		return components;			
+	}
+	
+    private Component getTreeComponent(String value){
+		Label component = new Label(value);
+		contextMenu.setAsContextMenuOf(component);
+		return component;		
+	}
+	
+	private void setAsContextMenuOf(ContextClickNotifier[] components){
+		for(ContextClickNotifier c: components)
+			contextMenu.setAsContextMenuOf(c);				
+	}
+
 	private void setComponentListeners(){
 		
 		loadButton.addClickListener(new ClickListener() {
@@ -158,16 +269,17 @@ public class XmlMainView extends UI implements XmlView {
 			@SuppressWarnings("unchecked")
 			@Override
             public void itemClick(ItemClickEvent event) {
+				
 				int itemId = (int) event.getItemId();	
 				if(event.getButton() == MouseButton.LEFT){										
 		            int parentItemId = (itemId == 0) ? itemId : (int) tree.getParent(itemId);                               
 		            String propertyName = (String) event.getPropertyId();
 		            Property<Component> containerProperty = tree.getContainerProperty(itemId, propertyName);
-		            Command item = new Command(actionMap.get(propertyName), itemId, parentItemId);
+		            Command command = new Command(actionMap.get(propertyName), itemId, parentItemId);
 		            Component component = containerProperty.getValue();
 		            		            	
 		            if (component instanceof Label) 
-		                 changeLabelToTextField((Label) component, containerProperty, item);	    				
+		                 changeLabelToTextField((Label) component, containerProperty, command);	    				
 				}
 				else
 					selectedItemId = itemId;
@@ -176,7 +288,7 @@ public class XmlMainView extends UI implements XmlView {
 		});	
 	}
 	
-	private void changeLabelToTextField(Label label, final Property<Component> containerProperty, final Command item){
+	private void changeLabelToTextField(Label label, final Property<Component> containerProperty, final Command command){
 		
 		final TextField field = new TextField();                      
         field.setImmediate(true);
@@ -188,51 +300,11 @@ public class XmlMainView extends UI implements XmlView {
     	    
         	@Override
             public void blur(BlurEvent event) {
-        		containerProperty.setValue(new Label(field.getValue()));
-        		item.setNewValue(field.getValue());
-        		controller.updateFile(item);            	
+        		containerProperty.setValue(getTreeComponent(field.getValue()));
+        		command.setNewValue(field.getValue());
+        		controller.updateNameOrValue(command);            	
         	}
 		});
-	}
-	
-	private void addComponents(){
-		filePanel.addComponent(fileList);
-	    filePanel.addComponent(loadButton);
-	    filePanel.addComponent(saveButton); 
-		layout.addComponent(filePanel);
-	}
-	
-	private void initComponents(){
-		layout = new VerticalLayout();
-		filePanel = new HorizontalLayout();
-		saveButton  = new Button("SAVE");
-		loadButton  = new Button("LOAD");
-		fileList = new ComboBox();
-		fileList.setInputPrompt("SELECT FILE");
-		List<String> names = controller.getFileList();
-		fileList.addItems(names);
-		fileList.setValue(names.get(0));
-		saveButton.setEnabled(false);
-		layout.setMargin(true);
-		setContent(layout);  
-		
-	}
-	private void initTree(){
-		if(tree != null)
-			layout.removeComponent(tree);
-		nodeCounter = 0;
-		tree = new TreeTable("XML Configuration");
-		tree.addContainerProperty(ELEMENT_PROPERTY, Component.class, null);
-		tree.addContainerProperty(VALUE_PROPERTY, Component.class, null);
-		tree.setWidth("400");
-		tree.setEditable(true);
-		tree.setImmediate(true);
-		saveButton.setEnabled(true);
-		actionMap.put(ELEMENT_PROPERTY, ActionType.CHANGE_NAME);
-		actionMap.put(VALUE_PROPERTY, ActionType.CHANGE_VALUE);
-		setTreeListener();
-		initContextMenu();
-		layout.addComponent(tree);	
 	}
 	
 	private void initContextMenu() {
@@ -241,7 +313,7 @@ public class XmlMainView extends UI implements XmlView {
 			
 			@Override			
 			public void menuSelected(MenuItem selectedItem) {
-				controller.addElement(prepareCommand(ActionType.ADD_ELEMENT));			
+				controller.addElement(prepareCommand());			
 			}
 		});	
 		
@@ -249,56 +321,22 @@ public class XmlMainView extends UI implements XmlView {
         	
 			@Override
 			public void menuSelected(MenuItem selectedItem) {			
-				controller.addAttribute(prepareCommand(ActionType.ADD_ATTRIBUTE));		
+				controller.addAttribute(prepareCommand());		
 			}
 		});	
-	}
-	
-	private Command prepareCommand(ActionType actionType){
-		Command command = new Command();
-		command.setActionType(actionType);
-		command.setItemId(selectedItemId);	
-		return command;
-	}
-
-	private void addChildrenToTree(NodeList children, int id) {
-	    if (children.getLength() > 0) {	
-	    	int parentId = id;
-	        for (int i = 0; i < children.getLength(); i++) {
-	        	Node node = children.item(i);
-	        	if(node instanceof Element){
-	        		int childId = ++nodeCounter;	            	   
-		            tree.addItem(getTreeComponentItem(node.getNodeName(), node.getNodeValue()), childId);
-		            tree.setParent(childId, parentId);
-		            addAttributesToTree(node, childId);
-		            addChildrenToTree(node.getChildNodes(), childId);
-	        	}	        	
-	        }
-	    }
-	}	
-	
-	private  void addAttributesToTree(Node node, int parentId){
-		 if(node.hasAttributes()){
-	        	NamedNodeMap attr = node.getAttributes();
-	        	for(int j = 0; j < attr.getLength(); j++){
-	        		int childId = ++nodeCounter;
-	        		tree.addItem(getTreeComponentItem(attr.item(j).getNodeName(), attr.item(j).getNodeValue()), childId);
-	        		tree.setParent(childId, parentId);
-	        		tree.setChildrenAllowed(childId, false);
-	        	}
-	        }
+        
+        contextMenu.addItem("Remove item", new Menu.Command() {	
+        	
+			@Override
+			public void menuSelected(MenuItem selectedItem) {	
+				controller.removeItem(selectedItemId);
+			}		
+		});	
 	}
 
-	private Component[] getTreeComponentItem(String name, String value){
-		Label[] item = new Label[]{new Label(name), new Label(value)};
-		setAsContextMenuOf(item);
-		return item;			
-	}
 	
-	private void setAsContextMenuOf(Label[] components){
-		for(Label c: components)
-			contextMenu.setAsContextMenuOf(c);				
-	}
+	
+	
 
 	
 

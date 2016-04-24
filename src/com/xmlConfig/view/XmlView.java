@@ -17,5 +17,7 @@ public interface XmlView {
 	public void createNewElement();
 	
 	public void createNewAttribute();
+	
+	public void removeItem();
 
 }
