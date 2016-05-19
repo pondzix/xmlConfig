@@ -1,12 +1,6 @@
 package com.xmlConfig.view;
 
-
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,7 +15,7 @@ import com.vaadin.addon.contextmenu.Menu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.data.Item;
+
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.HierarchicalContainer;
@@ -62,15 +56,18 @@ public class XmlMainView extends UI implements XmlView {
 	private HorizontalLayout filePanel;
 	private Button saveButton;
 	private Button loadButton;
+	private Label info;
 	private ComboBox fileList;
 	private ContextMenu contextMenu;
-	private Map <String, ActionType> actionMap = new HashMap<>();
-	private int nodeCounter;
+	
+	private int itemCounter;
 	private int selectedItemId;
 	private int parentOfSelectedItem;
+	
 	private final String ELEMENT_PROPERTY = "Element Name";
 	private final String VALUE_PROPERTY = "Value";
 	private final String EMPTY_FILENAME_NOTIFICATION = "File name can not be empty";
+	private final String GAUGE_PROPERTY = "Gauge";
 	private final String GENERATED_NAME = "NEW";
 	
 	
@@ -90,7 +87,7 @@ public class XmlMainView extends UI implements XmlView {
 	public void displayFile(Document doc){
 	    initTree();
 	    Element root = doc.getDocumentElement();
-        int parentId = nodeCounter;
+        int parentId = itemCounter;
         tree.addItem(getArrayOfTreeComponent(root.getNodeName(), root.getNodeValue()), parentId);
         addAttributesToTree(root, parentId);	   
         addChildrenToTree(root.getChildNodes(), parentId);
@@ -124,7 +121,7 @@ public class XmlMainView extends UI implements XmlView {
 	@Override
 	public void createNewAttribute() {
 		addNewItemToTree();
-		tree.setChildrenAllowed(nodeCounter, false);		
+		tree.setChildrenAllowed(itemCounter, false);		
 	}
 	
 	@Override
@@ -133,8 +130,8 @@ public class XmlMainView extends UI implements XmlView {
 	}
 	
 	private void addNewItemToTree(){
-		tree.addItem(getArrayOfTreeComponent(GENERATED_NAME, ""), ++nodeCounter);
-		tree.setParent(nodeCounter, selectedItemId);
+		tree.addItem(getArrayOfTreeComponent(GENERATED_NAME, ""), ++itemCounter);
+		tree.setParent(itemCounter, selectedItemId);
 	}
 	
 	
@@ -143,6 +140,7 @@ public class XmlMainView extends UI implements XmlView {
 	    filePanel.addComponent(loadButton);
 	    filePanel.addComponent(saveButton); 
 		layout.addComponent(filePanel);
+		layout.addComponent(info);
 	}
 	
 	private void initComponents(){
@@ -158,6 +156,7 @@ public class XmlMainView extends UI implements XmlView {
 		layout.setMargin(true);
 		setContent(layout); 
 			
+		info = new Label("Left click - edit, Right click - context menu");
 		saveButton  = new Button("SAVE");
 		saveButton.setEnabled(false);
 		loadButton  = new Button("LOAD");
@@ -173,16 +172,15 @@ public class XmlMainView extends UI implements XmlView {
 		tree = new TreeTable("XML Configuration", container);
 		tree.addContainerProperty(ELEMENT_PROPERTY, Component.class, null);
 		tree.addContainerProperty(VALUE_PROPERTY, Component.class, null);
+		tree.addContainerProperty(GAUGE_PROPERTY, Component.class, null);
 		tree.setWidth("400");
 		tree.setEditable(true);
 		tree.setImmediate(true);
-				
+		
 		saveButton.setEnabled(true);
-		actionMap.put(ELEMENT_PROPERTY, ActionType.CHANGE_NAME);
-		actionMap.put(VALUE_PROPERTY, ActionType.CHANGE_VALUE);
 		setTreeListener();
 		initContextMenu();
-		nodeCounter = 0;
+		itemCounter = 0;
 		layout.addComponent(tree);	
 	}
 	
@@ -199,7 +197,7 @@ public class XmlMainView extends UI implements XmlView {
 	        for (int i = 0; i < children.getLength(); i++) {
 	        	Node node = children.item(i);
 	        	if(node instanceof Element){
-	        		int childId = ++nodeCounter;	            	   
+	        		int childId = ++itemCounter;	            	   
 		            tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue()), childId);
 		            tree.setParent(childId, parentId);
 		            addAttributesToTree(node, childId);
@@ -213,7 +211,7 @@ public class XmlMainView extends UI implements XmlView {
 		 if(node.hasAttributes()){
 	        	NamedNodeMap attr = node.getAttributes();
 	        	for(int j = 0; j < attr.getLength(); j++){
-	        		int childId = ++nodeCounter;
+	        		int childId = ++itemCounter;
 	        		tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue()), childId);
 	        		tree.setParent(childId, parentId);
 	        		tree.setChildrenAllowed(childId, false);
@@ -222,7 +220,7 @@ public class XmlMainView extends UI implements XmlView {
 	}
 
 	private Component[] getArrayOfTreeComponent(String name, String value){
-		Label[] components = new Label[]{new Label(name), new Label(value)};
+		Label[] components = new Label[]{new Label(name), new Label(value), new Label("")};
 		setAsContextMenuOf(components);
 		return components;			
 	}
@@ -277,10 +275,11 @@ public class XmlMainView extends UI implements XmlView {
 				if(event.getButton() == MouseButton.LEFT){												                                       
 		            String propertyName = (String) event.getPropertyId();
 		            Property<Component> containerProperty = tree.getContainerProperty(selectedItemId, propertyName);
-		            Command command = new Command(actionMap.get(propertyName), selectedItemId, parentOfSelectedItem);
+		            ActionType type = propertyName.equals(ELEMENT_PROPERTY) ? ActionType.CHANGE_NAME : ActionType.CHANGE_VALUE;
+		            Command command = new Command(type, selectedItemId, parentOfSelectedItem);
 		            Component component = containerProperty.getValue();
 		            		            	
-		            if (component instanceof Label) 
+		            if (component instanceof Label && !propertyName.equals(GAUGE_PROPERTY)) 
 		                 changeLabelToTextField((Label) component, containerProperty, command);	    				
 				}			                	                 										
             }			
