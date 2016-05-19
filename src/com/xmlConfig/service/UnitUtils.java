@@ -86,7 +86,7 @@ public class UnitUtils {
 			String num  = unit.substring(0, unit.indexOf('/'));	
 			Parameter den = getParam(unit.substring(unit.indexOf('/') + 1));
 			paramValue = convertMultiUnitsToSingle(num, paramUnit);
-			substructArrays(paramUnit, den.getUnit());
+			subtractArrays(paramUnit, den.getUnit());
 			param.setValue(paramValue / den.getValue());
 		}else{
 			paramValue = convertMultiUnitsToSingle(unit, paramUnit);
@@ -131,7 +131,7 @@ public class UnitUtils {
 			unit[i] += unitTemp[i];	
 	}
 	
-	private void substructArrays(double[] unit, double[] unitTemp){
+	private void subtractArrays(double[] unit, double[] unitTemp){
 		for(int i = 0; i < unit.length; i++)
 			unit[i] -= unitTemp[i];
 	}
