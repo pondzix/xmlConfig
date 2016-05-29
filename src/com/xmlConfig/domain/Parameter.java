@@ -6,9 +6,9 @@ public class Parameter {
 
 	
 	private double value;
-	private double[] unit;
+	private int[] unit;
 
-	public Parameter(double value, double[] unit){
+	public Parameter(double value, int[] unit){
 		this.setValue(value);
 		this.setUnit(unit);
 	}
@@ -17,11 +17,11 @@ public class Parameter {
 		
 	}
 
-	public double[] getUnit() {
+	public int[] getUnit() {
 		return unit;
 	}
 
-	public void setUnit(double[] unit) {
+	public void setUnit(int[] unit) {
 		this.unit = unit;
 	}
 

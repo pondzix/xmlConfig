@@ -11,53 +11,53 @@ import com.xmlConfig.exception.InvalidInputParameterException;
 
 public class UnitUtils {
 
-	private String[] basicUnitsNames = {
+	public static String[] basicUnitsNames = {
 			"mm", "cm", "ms", "mg", "m",
 			"km", "s", "ms","ks","g",
 			"Pa", "N", "J", "K", "x",
 			"y", "z"};
-	private Map<String, Parameter> basicUnits = new HashMap<>();
-	private String mainRegex;
-	private String reg;
+	public static Map<String, Parameter> basicUnits = new HashMap<>();
+	public static String reg;
+	public static String mainRegex;
+	public static String numberRegex = "([-+]?[0-9]*(\\.[0-9]*)?([eE][+-]?[0-9]+)?)?";
 	
-	public UnitUtils() {
-		basicUnits.put("mm", new Parameter(1e-3, new double[]{1, 0, 0, 0, 0, 0, 0}));
-		basicUnits.put("cm", new Parameter(1e-2, new double[]{1, 0, 0, 0, 0, 0, 0}));
-		basicUnits.put("ms", new Parameter(1e-3, new double[]{0, 1, 0, 0, 0, 0, 0}));
-		basicUnits.put("mg", new Parameter(1e-6, new double[]{0, 0, 1, 0, 0, 0, 0}));
-		basicUnits.put("m",  new Parameter(1,    new double[]{1, 0, 0, 0, 0, 0, 0}));
-		basicUnits.put("km", new Parameter(1e3,  new double[]{1, 0, 0, 0, 0, 0, 0}));
-		basicUnits.put("s",  new Parameter(1,    new double[]{0, 1, 0, 0, 0, 0, 0}));
-		basicUnits.put("ms", new Parameter(1e-3, new double[]{0, 1, 0, 0, 0, 0, 0}));
-		basicUnits.put("kg", new Parameter(1,    new double[]{0, 0, 1, 0, 0, 0, 0}));
-		basicUnits.put("g",  new Parameter(1e-3, new double[]{0, 0, 1, 0, 0, 0, 0}));
-		basicUnits.put("Pa", new Parameter(1,    new double[]{-1, -2, 1, 0, 0, 0, 0}));
-		basicUnits.put("N",  new Parameter(1,    new double[]{1, -2, 1, 0, 0, 0, 0}));
-		basicUnits.put("J",  new Parameter(1,    new double[]{2, -2, 1, 0, 0, 0, 0}));
-		basicUnits.put("K",  new Parameter(1,    new double[]{0, 0, 0, 1, 0, 0, 0}));
-		basicUnits.put("x",  new Parameter(1,    new double[]{0, 0, 0, 0, 1, 0, 0}));
-		basicUnits.put("y",  new Parameter(1,    new double[]{0, 0, 0, 0, 0, 1, 0}));
-		basicUnits.put("z",  new Parameter(1,    new double[]{0, 0, 0, 0, 0, 0, 1}));
+	static {
+		basicUnits.put("mm", new Parameter(1e-3, new int[]{1, 0, 0, 0, 0, 0, 0}));
+		basicUnits.put("cm", new Parameter(1e-2, new int[]{1, 0, 0, 0, 0, 0, 0}));
+		basicUnits.put("ms", new Parameter(1e-3, new int[]{0, 1, 0, 0, 0, 0, 0}));
+		basicUnits.put("mg", new Parameter(1e-6, new int[]{0, 0, 1, 0, 0, 0, 0}));
+		basicUnits.put("m",  new Parameter(1,    new int[]{1, 0, 0, 0, 0, 0, 0}));
+		basicUnits.put("km", new Parameter(1e3,  new int[]{1, 0, 0, 0, 0, 0, 0}));
+		basicUnits.put("s",  new Parameter(1,    new int[]{0, 1, 0, 0, 0, 0, 0}));
+		basicUnits.put("ms", new Parameter(1e-3, new int[]{0, 1, 0, 0, 0, 0, 0}));
+		basicUnits.put("kg", new Parameter(1,    new int[]{0, 0, 1, 0, 0, 0, 0}));
+		basicUnits.put("g",  new Parameter(1e-3, new int[]{0, 0, 1, 0, 0, 0, 0}));
+		basicUnits.put("Pa", new Parameter(1,    new int[]{-1, -2, 1, 0, 0, 0, 0}));
+		basicUnits.put("N",  new Parameter(1,    new int[]{1, -2, 1, 0, 0, 0, 0}));
+		basicUnits.put("J",  new Parameter(1,    new int[]{2, -2, 1, 0, 0, 0, 0}));
+		basicUnits.put("K",  new Parameter(1,    new int[]{0, 0, 0, 1, 0, 0, 0}));
+		basicUnits.put("x",  new Parameter(1,    new int[]{0, 0, 0, 0, 1, 0, 0}));
+		basicUnits.put("y",  new Parameter(1,    new int[]{0, 0, 0, 0, 0, 1, 0}));
+		basicUnits.put("z",  new Parameter(1,    new int[]{0, 0, 0, 0, 0, 0, 1}));
 		
 		createRegex();		
 	}
 	
-	private void createRegex() {
+	public static void createRegex() {
 		StringBuilder sb  = new StringBuilder();
-		StringBuilder sbMain = new StringBuilder();
 		
 		sb.append("(");
-		for(String s: basicUnitsNames){
+		for(String s: basicUnitsNames)
 			sb.append(s + "[+-]?[0-9]*|");
-			sbMain.append(s);
-		}	
+	
 		sb.append(")");
 		reg = sb.toString();
-		mainRegex = "([-+]?[0-9]*(\\.[0-9]*)?([eE][+-]?[0-9]+)?)([" + sbMain.toString() + "]+[+-]?\\d*[/\\*]?)+";
+		mainRegex = "([-+]?[0-9]*(\\.[0-9]*)?([eE][+-]?[0-9]+)?)([mksgcPaNJKxyz]+[+-]?\\d*[/\\*]?)+";
+		numberRegex = "([-+]?[0-9]*(\\.[0-9]*)?([eE][+-]?[0-9]+)?)?";
 	}
 
 	
-	public Parameter parseStringToParameter(String unit) throws InvalidInputParameterException{
+	public static Parameter parseStringToParameter(String unit) throws InvalidInputParameterException{
 		
 		Parameter param = new Parameter();
 		Pattern p = Pattern.compile(mainRegex);
@@ -77,9 +77,9 @@ public class UnitUtils {
 		return param;
 	}
 	
-	public Parameter getParam(String unit){
+	private static Parameter getParam(String unit){
 		Parameter param = new Parameter();
-		double[] paramUnit = new double[7];
+		int[] paramUnit = new int[7];
 		double paramValue;
 			
 		if(unit.contains("/")){
@@ -96,8 +96,8 @@ public class UnitUtils {
 		return param;	 
 	}
 	
-	private double convertMultiUnitsToSingle(String unit, double[] paramUnit){
-		double[] paramUnitTemp = new double[7];
+	private static double convertMultiUnitsToSingle(String unit, int[] paramUnit){
+		int[] paramUnitTemp = new int[7];
 		double paramValue = 1;
 		Pattern p = Pattern.compile(reg);
 		Matcher m = p.matcher(unit);
@@ -109,7 +109,7 @@ public class UnitUtils {
 			 copyArray(basicUnits.get(unitName).getUnit(), paramUnitTemp);	
 			 if(!pow.equals("")){
 				 paramValue *= Math.pow(basicUnits.get(unitName).getValue(), Double.valueOf(pow));
-				 multiplyArray(Double.valueOf(pow), paramUnitTemp);
+				 multiplyArray(Integer.valueOf(pow), paramUnitTemp);
 			 }					 		 
 			 addArrays(paramUnit, paramUnitTemp);	
 		 }
@@ -117,21 +117,21 @@ public class UnitUtils {
 		 return paramValue;
 	}
 
-	private void copyArray(double[] from, double[] to){
+	private static void copyArray(int[] from, int[] to){
 		for(int i = 0; i < to.length; i++)
 			to[i] = from[i];
 	}
-	private void multiplyArray(double value, double[] unit) {
+	private static void multiplyArray(int value, int[] unit) {
 		for(int i = 0; i < unit.length; i++)
 			unit[i] *= value;
 	}
 	
-	private void addArrays(double[] unit, double[] unitTemp){
+	private static void addArrays(int[] unit, int[] unitTemp){
 		for(int i = 0; i < unit.length; i++)
 			unit[i] += unitTemp[i];	
 	}
 	
-	private void subtractArrays(double[] unit, double[] unitTemp){
+	private static void subtractArrays(int[] unit, int[] unitTemp){
 		for(int i = 0; i < unit.length; i++)
 			unit[i] -= unitTemp[i];
 	}

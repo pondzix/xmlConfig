@@ -1,4 +1,4 @@
-package com.xmlConfig.service;
+package com.xmlConfig.service.calculation;
 
 import java.util.Map;
 

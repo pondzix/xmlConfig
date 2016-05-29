@@ -15,7 +15,6 @@ import com.vaadin.addon.contextmenu.Menu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.HierarchicalContainer;
@@ -88,7 +87,7 @@ public class XmlMainView extends UI implements XmlView {
 	    initTree();
 	    Element root = doc.getDocumentElement();
         int parentId = itemCounter;
-        tree.addItem(getArrayOfTreeComponent(root.getNodeName(), root.getNodeValue()), parentId);
+        tree.addItem(getArrayOfTreeComponent(root.getNodeName(), root.getNodeValue(), ""), parentId);
         addAttributesToTree(root, parentId);	   
         addChildrenToTree(root.getChildNodes(), parentId);
 	}
@@ -129,8 +128,16 @@ public class XmlMainView extends UI implements XmlView {
 		container.removeItemRecursively(selectedItemId);		
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void updateGauge(int id, String gauge) {
+		  Property<Component> containerProperty = tree.getContainerProperty(selectedItemId, GAUGE_PROPERTY);
+		  Label l = (Label)containerProperty.getValue();
+		  l.setValue(gauge);		
+	}
+	
 	private void addNewItemToTree(){
-		tree.addItem(getArrayOfTreeComponent(GENERATED_NAME, ""), ++itemCounter);
+		tree.addItem(getArrayOfTreeComponent(GENERATED_NAME, "", ""), ++itemCounter);
 		tree.setParent(itemCounter, selectedItemId);
 	}
 	
@@ -197,8 +204,8 @@ public class XmlMainView extends UI implements XmlView {
 	        for (int i = 0; i < children.getLength(); i++) {
 	        	Node node = children.item(i);
 	        	if(node instanceof Element){
-	        		int childId = ++itemCounter;	            	   
-		            tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue()), childId);
+	        		int childId = ++itemCounter;        		
+		            tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue(), ""), childId);
 		            tree.setParent(childId, parentId);
 		            addAttributesToTree(node, childId);
 		            addChildrenToTree(node.getChildNodes(), childId);
@@ -212,15 +219,20 @@ public class XmlMainView extends UI implements XmlView {
 	        	NamedNodeMap attr = node.getAttributes();
 	        	for(int j = 0; j < attr.getLength(); j++){
 	        		int childId = ++itemCounter;
-	        		tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue()), childId);
+	        		String gauge = calculateGauge(attr.item(j).getNodeValue());
+	        		tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue(), gauge), childId);
 	        		tree.setParent(childId, parentId);
 	        		tree.setChildrenAllowed(childId, false);
 	        	}
 	        }
 	}
 
-	private Component[] getArrayOfTreeComponent(String name, String value){
-		Label[] components = new Label[]{new Label(name), new Label(value), new Label("")};
+	private String calculateGauge(String value) {	
+		return controller.calculateGauge(value);
+	}
+
+	private Component[] getArrayOfTreeComponent(String name, String value, String gauge){
+		Label[] components = new Label[]{new Label(name), new Label(value), new Label(gauge)};
 		setAsContextMenuOf(components);
 		return components;			
 	}
@@ -331,6 +343,10 @@ public class XmlMainView extends UI implements XmlView {
 			}		
 		});	
 	}
+
+	
+	
+	
 
 	
 	

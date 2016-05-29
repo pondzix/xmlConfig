@@ -19,10 +19,14 @@ import com.xmlConfig.exception.IllegalFileModification;
 
 public class FileService {
 
-	private XmlFileAdapter fileModel;
+	private XmlFileAdapter fileModel;	
 	private FileDao fileDao = new FileDaoImpl();
 	
 	
+    public XmlFileAdapter getFileModel() {
+		return fileModel;
+	}
+  
 	public Document getFile(String fileName) throws IOException, SAXException, ParserConfigurationException {
 		if(!fileName.isEmpty()){
 			Document doc =  fileDao.getXmlFile(fileName);

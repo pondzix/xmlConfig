@@ -19,5 +19,7 @@ public interface XmlView {
 	public void createNewAttribute();
 	
 	public void removeItem();
+	
+	public void updateGauge(int id, String gauge);
 
 }

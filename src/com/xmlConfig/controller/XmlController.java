@@ -6,17 +6,23 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.google.gson.annotations.Until;
 import com.xmlConfig.domain.Command;
 import com.xmlConfig.exception.IllegalFileModification;
+import com.xmlConfig.exception.InvalidInputParameterException;
+import com.xmlConfig.exception.SolutionNotFoundException;
 import com.xmlConfig.service.FileService;
+import com.xmlConfig.service.UnitService;
 import com.xmlConfig.view.XmlView;
 
 public class XmlController {
 	
 	private XmlView view;
-	private FileService service = new FileService();
+	private FileService fileService = new FileService();
+	private UnitService unitService = new UnitService();
 	
 	public XmlController(XmlView view) {
 		this.view = view;
@@ -24,19 +30,22 @@ public class XmlController {
 
 	public void getFile(String path) {
 		try {
-			view.displayFile(service.getFile(path));
-		} catch (IOException | SAXException | ParserConfigurationException e) {
+			Document doc = fileService.getFile(path);
+			unitService.setFileService(fileService);
+			view.displayFile(doc);
+		} catch (IOException | SAXException | ParserConfigurationException | InvalidInputParameterException e) {
+			e.printStackTrace();
 			view.showLoadingFileFail();
 		}		
 	}
 
 	public List<String> getFileList() {
-		return service.getFileList();	
+		return fileService.getFileList();	
 	}
 
 	public void saveFile() {
 		try {
-			service.saveFile();
+			fileService.saveFile();
 			view.showSaveSucces();
 		} catch (ParserConfigurationException | TransformerException e) {	
 			view.showSaveFail();		
@@ -44,16 +53,19 @@ public class XmlController {
 	}
 
 	public void updateNameOrValue(Command command) {
+		String gauge;
 		try {
-			service.updateNameOrValue(command);
-		} catch (IllegalFileModification e) {
+			fileService.updateNameOrValue(command);
+			 gauge = unitService.calculateGauge(command.getNewValue());
+			view.updateGauge(command.getItemId(), gauge);
+		} catch (IllegalFileModification | SolutionNotFoundException | InvalidInputParameterException e) {
 			view.showModificationFail();
 		}
 	}
 
 	public void addElement(Command command) {
 		try {
-			service.addChildElementToSelectedItem(command);
+			fileService.addChildElementToSelectedItem(command);
 			view.createNewElement();
 		} catch (IllegalFileModification e) {
 			view.showModificationFail();
@@ -63,7 +75,7 @@ public class XmlController {
 
 	public void addAttribute(Command command) {
 		try {
-			service.addAttributeToSelectedItem(command);
+			fileService.addAttributeToSelectedItem(command);
 			view.createNewAttribute();
 		} catch (IllegalFileModification e) {
 			view.showModificationFail();
@@ -71,8 +83,21 @@ public class XmlController {
 	}
 
 	public void removeItem(Command command) {
-		service.removeItem(command);
+		fileService.removeItem(command);
 		view.removeItem();		
+	}
+	
+	
+	public String calculateGauge(String param){
+		String gauge = "";
+		try {
+			gauge = unitService.calculateGauge(param);
+		} catch (SolutionNotFoundException e) {
+			
+		} catch (InvalidInputParameterException e) {
+			
+		}		
+		return gauge;
 	}
 	
 	
