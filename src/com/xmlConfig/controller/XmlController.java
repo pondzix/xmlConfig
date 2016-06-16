@@ -2,6 +2,7 @@ package com.xmlConfig.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -9,7 +10,6 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.google.gson.annotations.Until;
 import com.xmlConfig.domain.Command;
 import com.xmlConfig.exception.IllegalFileModification;
 import com.xmlConfig.exception.InvalidInputParameterException;
@@ -98,6 +98,21 @@ public class XmlController {
 			
 		}		
 		return gauge;
+	}
+
+	public Map<Integer, String> getGauges() {
+		
+		try {
+			return unitService.getGauges();
+		} catch (SolutionNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidInputParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 	
 	

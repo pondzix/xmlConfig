@@ -17,7 +17,7 @@ public class XmlFileAdapter {
 	private Document document;
 	private String fileName;
 	private Map<Integer, Node> elementMap = new HashMap<>();
-	private List<Integer> valuesWithGauge = new ArrayList<>();
+	private Map<Integer, String> valuesWithGauge = new HashMap<>();
 	private Map<Integer, Integer> equations = new HashMap<>();
 	private int nodeCounter;
 	private boolean hasUnits;
@@ -27,8 +27,15 @@ public class XmlFileAdapter {
 		this.fileName = fileName;
 		buildElementMap(document.getDocumentElement());
 		checkIfIsUnitsElement(document);
+		printE();
 	}
 
+	private void printE(){
+		for(Map.Entry<Integer, Integer> entry: equations.entrySet()){
+			System.out.println(elementMap.get(entry.getKey()).getNodeName() + "----" + elementMap.get(entry.getValue()).getNodeName());
+		}
+		
+	}
 	public Document getDocument() {
 		return document;
 	}
@@ -53,6 +60,10 @@ public class XmlFileAdapter {
 
 	}
 	
+	public Map<Integer, String> getValuesWithGauge(){
+		return valuesWithGauge;
+	}
+	
 	public void addItem(Node element){
 		elementMap.put(nodeCounter++, element);	
 	}
@@ -75,8 +86,10 @@ public class XmlFileAdapter {
 	
 	private void buildElementMap(Node element){	
 		elementMap.put(nodeCounter++, element);		
-		if(isEquationParameter(element))
-			equations.put(nodeCounter + 1, nodeCounter);
+		if(isEquationParameter(element)){
+			System.out.println(element.getNodeName());
+			equations.put(nodeCounter + 1, nodeCounter );
+		}
 			
 		addAttributesToList(element);
 		NodeList childrenList = element.getChildNodes();
@@ -92,9 +105,11 @@ public class XmlFileAdapter {
 			NamedNodeMap attrs = element.getAttributes();
 			for(int i = 0; i < attrs.getLength(); i++)
 				if(attrs.item(i) instanceof Attr){
-					Attr attr = (Attr)attrs.item(i);							
-					elementMap.put(nodeCounter, attr);
-					valuesWithGauge.add(nodeCounter++);
+					Attr attr = (Attr)attrs.item(i);	
+					int c = nodeCounter++;
+					elementMap.put(c, attr);
+					if(!isEquationParameter(element))
+						valuesWithGauge.put(c, attr.getValue());
 				}
 			
 		}

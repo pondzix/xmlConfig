@@ -47,6 +47,14 @@ public class UnitService {
 		else
 			return "";
 	}
+
+	public Map<Integer, String> getGauges() throws SolutionNotFoundException, InvalidInputParameterException {
+		Map<Integer, String> gaugeMap = new HashMap<>();
+		for(Map.Entry<Integer, String> entry: fileService.getValuesWithGauge().entrySet())
+			gaugeMap.put(entry.getKey(), calculateGauge(entry.getValue()));
+					
+		return gaugeMap;
+	}
 		
 	
 }

@@ -1,6 +1,8 @@
 package com.xmlConfig.view;
 
+
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,15 +26,18 @@ import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.MouseEventDetails.MouseButton;
+import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
@@ -68,6 +73,7 @@ public class XmlMainView extends UI implements XmlView {
 	private final String EMPTY_FILENAME_NOTIFICATION = "File name can not be empty";
 	private final String GAUGE_PROPERTY = "Gauge";
 	private final String GENERATED_NAME = "NEW";
+	private final String INFO = "Left click - edit, Right click - context menu";
 	
 	
 	@WebServlet(value = "/*", asyncSupported = true)
@@ -90,6 +96,7 @@ public class XmlMainView extends UI implements XmlView {
         tree.addItem(getArrayOfTreeComponent(root.getNodeName(), root.getNodeValue(), ""), parentId);
         addAttributesToTree(root, parentId);	   
         addChildrenToTree(root.getChildNodes(), parentId);
+        //getGauges();
 	}
 
 	@Override
@@ -131,7 +138,7 @@ public class XmlMainView extends UI implements XmlView {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void updateGauge(int id, String gauge) {
-		  Property<Component> containerProperty = tree.getContainerProperty(selectedItemId, GAUGE_PROPERTY);
+		  Property<Component> containerProperty = tree.getContainerProperty(id, GAUGE_PROPERTY);
 		  Label l = (Label)containerProperty.getValue();
 		  l.setValue(gauge);		
 	}
@@ -158,12 +165,25 @@ public class XmlMainView extends UI implements XmlView {
 		fileList.addItems(names);
 		fileList.setValue(names.get(0));
 		
+		
 		filePanel = new HorizontalLayout();
 		layout = new VerticalLayout();
 		layout.setMargin(true);
-		setContent(layout); 
-			
-		info = new Label("Left click - edit, Right click - context menu");
+		ThemeResource res = new ThemeResource("index.html");
+		BrowserFrame frame = new BrowserFrame("Static", res);
+		frame.setWidth("100%");
+		frame.setHeight("100%");
+	
+
+		HorizontalSplitPanel split = new HorizontalSplitPanel();
+		split.setFirstComponent(layout);
+		split.setSecondComponent(frame);
+		
+		setContent(split);
+		//Label myLabel = new Label("<center><p style=\"background-color:rgb(55,55,55);font-size:50px;color:rgb(255,255,255)\">LABEL</p><center>",Label.CONTENT_RAW);
+		info = new Label("<center><p style=\"background-color:rgb(55,55,55);font-size:50px;color:rgb(255,255,255)\">LABEL</p><center>",Label.CONTENT_RAW);
+		info.setStyleName("mystyle");
+		info.setVisible(false);
 		saveButton  = new Button("SAVE");
 		saveButton.setEnabled(false);
 		loadButton  = new Button("LOAD");
@@ -180,10 +200,11 @@ public class XmlMainView extends UI implements XmlView {
 		tree.addContainerProperty(ELEMENT_PROPERTY, Component.class, null);
 		tree.addContainerProperty(VALUE_PROPERTY, Component.class, null);
 		tree.addContainerProperty(GAUGE_PROPERTY, Component.class, null);
-		tree.setWidth("400");
+		tree.setWidth("500");
 		tree.setEditable(true);
 		tree.setImmediate(true);
 		
+		info.setVisible(true);
 		saveButton.setEnabled(true);
 		setTreeListener();
 		initContextMenu();
@@ -204,11 +225,20 @@ public class XmlMainView extends UI implements XmlView {
 	        for (int i = 0; i < children.getLength(); i++) {
 	        	Node node = children.item(i);
 	        	if(node instanceof Element){
-	        		int childId = ++itemCounter;        		
-		            tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue(), ""), childId);
-		            tree.setParent(childId, parentId);
-		            addAttributesToTree(node, childId);
-		            addChildrenToTree(node.getChildNodes(), childId);
+	        		int childId = ++itemCounter;    
+	        		if(!node.getNodeName().equals("Params")){
+	        			tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue(), ""), childId);
+			            tree.setParent(childId, parentId);
+			            addAttributesToTree(node, childId);
+			            addChildrenToTree(node.getChildNodes(), childId);
+	        		} else if(node.getParentNode().getNodeName().equals("Units"))
+	        			addUnitsPanelToTree((Element)node, childId, parentId);	        			
+	        		  else {
+	        			addAttributesToTree(node, parentId);
+			            addChildrenToTree(node.getChildNodes(), parentId);
+	        		}
+	        		
+		            
 	        	}	        	
 	        }
 	    }
@@ -219,16 +249,24 @@ public class XmlMainView extends UI implements XmlView {
 	        	NamedNodeMap attr = node.getAttributes();
 	        	for(int j = 0; j < attr.getLength(); j++){
 	        		int childId = ++itemCounter;
-	        		String gauge = calculateGauge(attr.item(j).getNodeValue());
-	        		tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue(), gauge), childId);
+	        		tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue(), ""), childId);
 	        		tree.setParent(childId, parentId);
 	        		tree.setChildrenAllowed(childId, false);
 	        	}
 	        }
 	}
-
-	private String calculateGauge(String value) {	
-		return controller.calculateGauge(value);
+	
+	private void addUnitsPanelToTree(Element element, int nodeId, int parentId){
+		NamedNodeMap attr = element.getAttributes();
+		Node paramNode = null;
+		for(int j = 0; j < attr.getLength(); j++)
+			if(!attr.item(j).getNodeName().equals("gauge")){
+				paramNode = attr.item(j);
+				break;
+			}
+		tree.addItem(getArrayOfTreeComponent(paramNode.getNodeName(), paramNode.getNodeValue(), element.getAttribute("gauge")), nodeId);
+		tree.setParent(nodeId, parentId);
+		tree.setChildrenAllowed(nodeId, false);
 	}
 
 	private Component[] getArrayOfTreeComponent(String name, String value, String gauge){
@@ -342,22 +380,12 @@ public class XmlMainView extends UI implements XmlView {
 				controller.removeItem(prepareCommand());
 			}		
 		});	
+           
 	}
-
 	
-	
-	
-
-	
-	
-	
-
-	
-
-
-	
-
-
-
-	
+	 private void getGauges(){
+		 Map<Integer, String> gauges = controller.getGauges();
+		 for(Map.Entry<Integer, String> entry: gauges.entrySet())
+			 updateGauge(entry.getKey(), entry.getValue());			 
+	 }
 }

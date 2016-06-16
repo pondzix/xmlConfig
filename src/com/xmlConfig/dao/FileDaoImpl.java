@@ -27,8 +27,8 @@ import javax.xml.transform.stream.StreamResult;
 public class FileDaoImpl implements FileDao{
 
 	
-	private String directoryPath = "";
-
+	//private String directoryPath = "/var/lib/openshift/57123bcb89f5cff1ef0000cc/app-root/data/";
+	private String directoryPath = "C:/xmlTest/";
 	@Override 
 	public Document getXmlFile(String fileName) throws  IOException, SAXException, ParserConfigurationException {
 		File fXmlFile = new File(directoryPath + fileName);
