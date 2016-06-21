@@ -42,14 +42,20 @@ public class ElementUpdateService implements UpdateService{
 	}
 
 	@Override
-	public void addElement(Node parent) {
+	public void addElement(Node parent) throws IllegalFileModification {
+		if(!nodeValidation.isChildAllowed(parent))
+			throw new IllegalFileModification("Children are not allowed here");	
+		
 		Element newElement = fileModel.getDocument().createElement("NEW");
 		parent.appendChild(newElement);
-		fileModel.addItem(newElement);		
+		fileModel.addItem(newElement);			
 	}
 
 	@Override
-	public void addAttribute(Node parent) {
+	public void addAttribute(Node parent) throws IllegalFileModification {
+		if(!nodeValidation.isAttributeAllowed(parent))
+			throw new IllegalFileModification("Attributes are not allowed here");	
+		
 		Element element = (Element) parent;
 		Attr attribute = fileModel.getDocument().createAttribute("NEW");
 		element.setAttributeNode(attribute);

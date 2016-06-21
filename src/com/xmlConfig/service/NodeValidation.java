@@ -14,6 +14,11 @@ import org.yaml.snakeyaml.Yaml;
 public class NodeValidation {
 	
 	private Map map;
+	private Map mainTypes;
+	private final String CHILDREN = "children";
+	private final String TYPES = "types";
+	private final String TYPE = "type";
+	private final String ATTRIBUTE = "attr";
 	
 	public NodeValidation() {
 		init();
@@ -28,32 +33,47 @@ public class NodeValidation {
 		}
 		Yaml yaml = new Yaml();	
 		map = (Map)yaml.load(input);	
+		mainTypes = (Map) map.get(TYPES);
 	}
 
 	public boolean isValidNode(Node node, String name){
 		if(isValidName(name)){
 			Node parent = node.getParentNode();
 			Map parentProperties = getElementProperties(parent.getNodeName());
+			Map type = (Map) mainTypes.get(parentProperties.get(TYPE));
 			Map childProperties = getElementProperties(name);
-			if(parentProperties.containsKey("children"))
-				return checkChildren(parentProperties, childProperties);							
-			else {
-				Map mainTypes = (Map) map.get("types");
-				Map type = (Map) mainTypes.get(parentProperties.get("type"));
-				if(type.containsKey("children"))
-					return checkChildren(type, childProperties);
-			}
+		    return checkAllowedChildrenNames(parentProperties, childProperties) ||
+				   checkAllowedChildrenNames(type, childProperties);							
+		}
+		return false;
+	}
+	
+	public boolean isChildAllowed(Node node){
+		return isNewNodeAllowed(node, CHILDREN);
+	}
+	
+	public boolean isAttributeAllowed(Node node){
+		return isNewNodeAllowed(node, ATTRIBUTE);
+	}
+	
+	private boolean isNewNodeAllowed(Node node, String property){
+		Map nodeProperties = getElementProperties(node.getNodeName());
+		if(nodeProperties != null){
+			Object type = nodeProperties.get(TYPE);
+			return nodeProperties.containsKey(property) ||
+				   ((Map) mainTypes.get(type)).containsKey(property);
 		}
 		return false;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private boolean checkChildren(Map map, Map childProperties){
-		List<Map> types = (List<Map>) map.get("children");
-		for(Map m: types)					
-			if(m.get("type").equals(childProperties.get("type")))
-				return true;	
-		
+	private boolean checkAllowedChildrenNames(Map map, Map childProperties){
+		if(map.containsKey(CHILDREN)){
+			List<Map> types = (List<Map>) map.get(CHILDREN);
+			for(Map m: types)					
+				if(m.get(TYPE).equals(childProperties.get(TYPE)))
+					return true;	
+		}	
 		return false;
 	}
 	

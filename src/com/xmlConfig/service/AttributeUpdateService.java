@@ -28,8 +28,7 @@ public class AttributeUpdateService implements UpdateService{
 			case CHANGE_VALUE:
 				element.setAttribute(attribute.getName(), command.getNewValue());	
 				fileModel.updateItem(command.getItemId(), element.getAttributeNode(attribute.getName()));
-				break;
-				
+				break;			
 			case CHANGE_NAME:
 				element.setAttribute(command.getNewValue(), attribute.getValue());
 				fileModel.updateItem(command.getItemId(), element.getAttributeNode(command.getNewValue()));			
