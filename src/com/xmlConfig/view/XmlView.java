@@ -7,14 +7,6 @@ public interface XmlView {
 	public void displayFile(Document doc);
 	
 	public void showMessage(String message);
-
-	public void showSaveSucces();
-
-	public void showSaveFail();
-
-	public void showLoadingFileFail();
-
-	public void showModificationFail();
 	
 	public void createNewElement();
 	

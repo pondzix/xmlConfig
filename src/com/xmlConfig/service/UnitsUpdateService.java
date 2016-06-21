@@ -1,5 +1,6 @@
 package com.xmlConfig.service;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.xmlConfig.domain.Command;
@@ -16,10 +17,14 @@ public class UnitsUpdateService implements UpdateService{
 	
 	@Override
 	public void update(Command command) throws IllegalFileModification {
+		Element owner;
 		
 		switch(command.getActionType()){
 			case CHANGE_UNIT_GAUGE:
-				
+				owner = (Element) fileModel.getNodeById(command.getItemId());
+				owner.removeAttribute("gauge");
+				owner.setAttribute("gauge", command.getNewValue());
+				fileModel.updateItem(command.getItemId() + 1, owner.getAttributeNode("gauge"));
 				break;
 			case CHANGE_UNIT_NAME:
 				

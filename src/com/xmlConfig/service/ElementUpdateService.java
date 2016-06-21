@@ -31,11 +31,12 @@ public class ElementUpdateService implements UpdateService{
 				
 			case CHANGE_NAME:
 				element = (Element) fileModel.getNodeById(command.getItemId());
-				if(nodeValidation.isValidNode(element, command.getNewValue()))
-					fileModel.getDocument().renameNode(element, null, command.getNewValue());
-				else
-					throw new IllegalFileModification("Invalid name for element");			
+				if(!nodeValidation.isValidNode(element, command.getNewValue()))
+					throw new IllegalFileModification("Invalid name for element");
+				
+				fileModel.getDocument().renameNode(element, null, command.getNewValue());							
 				break;
+				
 			default:
 				break;				
 		}

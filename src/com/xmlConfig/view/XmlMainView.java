@@ -114,26 +114,6 @@ public class XmlMainView extends UI implements XmlView {
 	}
 	
 	@Override
-	public void showSaveSucces() {
-		Notification.show("FILE SAVED");	
-	}
-	
-	@Override
-	public void showSaveFail() {
-		Notification.show("CAN NOT SAVE FILE");		
-	}
-	
-	@Override
-	public void showLoadingFileFail() {
-		Notification.show("CAN NOT LOAD FILE");
-	}
-	
-	@Override
-	public void showModificationFail() {
-		Notification.show("CAN NOT MODIFY THAT VALUE");		
-	}
-	
-	@Override
 	public void createNewElement(){
 		addNewItemToTree();
 	}
@@ -152,9 +132,13 @@ public class XmlMainView extends UI implements XmlView {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void updateGauge(int id, String gauge) {
-		  Property<Component> containerProperty = tree.getContainerProperty(id, GAUGE_PROPERTY);
-		  Label l = (Label)containerProperty.getValue();
-		  l.setValue(gauge);		
+		  Property<Component> containerProperty = tree.getContainerProperty(id, GAUGE_PROPERTY);	  
+		  Component c = containerProperty.getValue();
+		  if(c instanceof Label){
+			  Label l = (Label)containerProperty.getValue();
+			  l.setValue(gauge);	
+		  } else
+			  c.setCaption(gauge);
 	}
 	
 	private void addNewItemToTree(){

@@ -12,26 +12,34 @@ import com.xmlConfig.exception.IllegalFileModification;
 public class AttributeUpdateService implements UpdateService{
 
 	private XmlFileAdapter fileModel;
+	private NodeValidation nodeValidation = new NodeValidation();
 	
 	public AttributeUpdateService(XmlFileAdapter fileModel) {
 		this.fileModel = fileModel;
 	}
 	
 	@Override
-	public void update(Command command){
+	public void update(Command command) throws IllegalFileModification{
 		ActionType type = command.getActionType();		
 		Attr attribute = (Attr) fileModel.getNodeById(command.getItemId());
-		Element element = attribute.getOwnerElement();
-		element.removeAttributeNode(attribute);
+		Element owner = attribute.getOwnerElement();
+		
 		
 		switch(type){	
 			case CHANGE_VALUE:
-				element.setAttribute(attribute.getName(), command.getNewValue());	
-				fileModel.updateItem(command.getItemId(), element.getAttributeNode(attribute.getName()));
+				owner.removeAttributeNode(attribute);
+				owner.setAttribute(attribute.getName(), command.getNewValue());	
+				fileModel.updateItem(command.getItemId(), owner.getAttributeNode(attribute.getName()));
 				break;			
 			case CHANGE_NAME:
-				element.setAttribute(command.getNewValue(), attribute.getValue());
-				fileModel.updateItem(command.getItemId(), element.getAttributeNode(command.getNewValue()));			
+				if(!nodeValidation.isValidAttribute(owner, command.getNewValue()))
+					throw new IllegalFileModification("Invalid name for attribute");	
+				if(owner.getAttributeNode(command.getNewValue()) != null)
+					throw new IllegalFileModification("Attribute already exists");	
+				
+				owner.removeAttributeNode(attribute);
+				owner.setAttribute(command.getNewValue(), attribute.getValue());
+				fileModel.updateItem(command.getItemId(), owner.getAttributeNode(command.getNewValue()));			
 				break;
 			default:
 				break;		

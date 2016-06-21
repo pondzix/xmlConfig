@@ -34,8 +34,7 @@ public class XmlController {
 			unitService.setFileService(fileService);
 			view.displayFile(doc);
 		} catch (IOException | SAXException | ParserConfigurationException | InvalidInputParameterException e) {
-			e.printStackTrace();
-			view.showLoadingFileFail();
+			view.showMessage("CAN NOT LOAD FILE");
 		}		
 	}
 
@@ -46,9 +45,9 @@ public class XmlController {
 	public void saveFile() {
 		try {
 			fileService.saveFile();
-			view.showSaveSucces();
+			view.showMessage("FILE SAVED");
 		} catch (ParserConfigurationException | TransformerException e) {	
-			view.showSaveFail();		
+			view.showMessage("CAN NOT SAVE FILE");	
 		}	 
 	}
 

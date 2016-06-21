@@ -7,8 +7,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.yaml.snakeyaml.Yaml;
+
+import com.xmlConfig.exception.IllegalFileModification;
 
 @SuppressWarnings("rawtypes")
 public class NodeValidation {
@@ -19,6 +22,7 @@ public class NodeValidation {
 	private final String TYPES = "types";
 	private final String TYPE = "type";
 	private final String ATTRIBUTE = "attr";
+	private final String NAME= "name";
 	
 	public NodeValidation() {
 		init();
@@ -48,6 +52,15 @@ public class NodeValidation {
 		return false;
 	}
 	
+	public boolean isValidAttribute(Node owner, String name){
+		System.out.println(owner);
+		Map ownerProperties = getElementProperties(owner.getNodeName());
+		Map type = (Map) mainTypes.get(ownerProperties.get(TYPE));
+		return checkAllowedAttributes(ownerProperties, name) || 
+			   checkAllowedAttributes(type, name);
+		
+	}
+
 	public boolean isChildAllowed(Node node){
 		return isNewNodeAllowed(node, CHILDREN);
 	}
@@ -63,6 +76,17 @@ public class NodeValidation {
 			return nodeProperties.containsKey(property) ||
 				   ((Map) mainTypes.get(type)).containsKey(property);
 		}
+		return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+    private boolean checkAllowedAttributes(Map map, String name) {
+    	if(map.containsKey(ATTRIBUTE)){			
+			List<Map> types = (List<Map>) map.get(ATTRIBUTE);
+			for(Map m: types)					
+				if(m.get(NAME).equals(name))
+					return true;	
+		}	
 		return false;
 	}
 	
