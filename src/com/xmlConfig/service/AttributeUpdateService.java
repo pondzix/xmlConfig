@@ -21,7 +21,7 @@ public class AttributeUpdateService implements UpdateService{
 	public void update(Command command){
 		ActionType type = command.getActionType();		
 		Attr attribute = (Attr) fileModel.getNodeById(command.getItemId());
-		Element element = (Element) fileModel.getNodeById(command.getParentItemId());
+		Element element = attribute.getOwnerElement();
 		element.removeAttributeNode(attribute);
 		
 		switch(type){	
@@ -33,26 +33,28 @@ public class AttributeUpdateService implements UpdateService{
 			case CHANGE_NAME:
 				element.setAttribute(command.getNewValue(), attribute.getValue());
 				fileModel.updateItem(command.getItemId(), element.getAttributeNode(command.getNewValue()));			
+				break;
+			default:
 				break;		
 		}				
 	}
 
 	@Override
 	public void addElement(Node parent) throws IllegalFileModification {
-		throw new IllegalFileModification();
+		throw new IllegalFileModification("Can not add child element to attribute");
 		
 	}
 
 	@Override
 	public void addAttribute(Node parent) throws IllegalFileModification {
-		throw new IllegalFileModification();
+		throw new IllegalFileModification("Can not add attribute to attribute");
 		
 	}
 
 	@Override
 	public void remove(Command command) {
 		Attr attribute = (Attr) fileModel.getNodeById(command.getItemId());
-		Element element = (Element) fileModel.getNodeById(command.getParentItemId());
+		Element element = attribute.getOwnerElement();
 		element.removeAttributeNode(attribute);	
 	}
 }

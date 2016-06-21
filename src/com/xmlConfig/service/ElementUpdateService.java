@@ -14,6 +14,7 @@ import com.xmlConfig.exception.IllegalFileModification;
 public class ElementUpdateService implements UpdateService{
 
 	private XmlFileAdapter fileModel;
+	private NodeValidation nodeValidation = new NodeValidation();
 	
 	public ElementUpdateService(XmlFileAdapter fileModel) {
 		this.fileModel = fileModel;
@@ -26,11 +27,16 @@ public class ElementUpdateService implements UpdateService{
 		
 		switch(type){	
 			case CHANGE_VALUE:
-				throw new IllegalFileModification();
+				throw new IllegalFileModification("Cannot modify that value");
 				
 			case CHANGE_NAME:
 				element = (Element) fileModel.getNodeById(command.getItemId());
-				fileModel.getDocument().renameNode(element, null, command.getNewValue());	
+				if(nodeValidation.isValidNode(element, command.getNewValue()))
+					fileModel.getDocument().renameNode(element, null, command.getNewValue());
+				else
+					throw new IllegalFileModification("Invalid name for element");			
+				break;
+			default:
 				break;				
 		}
 	}

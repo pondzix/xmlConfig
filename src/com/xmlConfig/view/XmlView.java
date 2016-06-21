@@ -5,6 +5,8 @@ import org.w3c.dom.Document;
 public interface XmlView {
 	
 	public void displayFile(Document doc);
+	
+	public void showMessage(String message);
 
 	public void showSaveSucces();
 

@@ -56,10 +56,10 @@ public class XmlController {
 		String gauge;
 		try {
 			fileService.updateNameOrValue(command);
-			 gauge = unitService.calculateGauge(command.getNewValue());
+			gauge = unitService.calculateGauge(command.getNewValue());
 			view.updateGauge(command.getItemId(), gauge);
 		} catch (IllegalFileModification | SolutionNotFoundException | InvalidInputParameterException e) {
-			view.showModificationFail();
+			view.showMessage(e.getMessage());
 		}
 	}
 
@@ -68,7 +68,7 @@ public class XmlController {
 			fileService.addChildElementToSelectedItem(command);
 			view.createNewElement();
 		} catch (IllegalFileModification e) {
-			view.showModificationFail();
+			view.showMessage(e.getMessage());
 		}
 		
 	}
@@ -78,7 +78,7 @@ public class XmlController {
 			fileService.addAttributeToSelectedItem(command);
 			view.createNewAttribute();
 		} catch (IllegalFileModification e) {
-			view.showModificationFail();
+			view.showMessage(e.getMessage());
 		}
 	}
 

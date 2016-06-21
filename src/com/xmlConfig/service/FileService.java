@@ -67,6 +67,8 @@ public class FileService {
 	}
 		
 	private  UpdateService getUpdateServiceByNodeType(Node node){
+		if(fileModel.isEquationParameter(node))
+			return new UnitsUpdateService(fileModel);
 		
 		if(node instanceof Attr)
 			return new AttributeUpdateService(fileModel);
@@ -76,11 +78,6 @@ public class FileService {
 
 	public Map<Integer, String> getValuesWithGauge() {	
 		return fileModel.getValuesWithGauge();
-	}
-
-	public String getNodeValue() {
-	
-		return null;
 	}
 
 	

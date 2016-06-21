@@ -4,7 +4,6 @@ public class Command {
 
 	private ActionType actionType;
 	private int itemId;
-	private int parentItemId;
 	private String newValue;
 	
 	public Command() {
@@ -15,15 +14,13 @@ public class Command {
 		super();
 		this.actionType = actionType;
 		this.itemId = itemId;
-		this.parentItemId = parentItemId;
 		this.newValue = newValue;		
 	}
 	
-	public Command(ActionType actionType, int itemId, int parentItemId) {
+	public Command(ActionType actionType, int itemId) {
 		super();
 		this.actionType = actionType;
 		this.itemId = itemId;
-		this.parentItemId = parentItemId;
 	}
 
 	public ActionType getActionType() {
@@ -37,12 +34,6 @@ public class Command {
 	}
 	public void setItemId(int itemId) {
 		this.itemId = itemId;
-	}
-	public int getParentItemId() {
-		return parentItemId;
-	}
-	public void setParentItemId(int parentItemId) {
-		this.parentItemId = parentItemId;
 	}
 	public String getNewValue() {
 		return newValue;

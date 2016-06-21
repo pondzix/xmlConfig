@@ -1,8 +1,6 @@
 package com.xmlConfig.domain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Attr;
@@ -27,7 +25,8 @@ public class XmlFileAdapter {
 		this.fileName = fileName;
 		buildElementMap(document.getDocumentElement());
 		checkIfIsUnitsElement(document);
-		printE();
+		//printE();
+		System.out.println(elementMap);
 	}
 
 	private void printE(){
@@ -84,6 +83,11 @@ public class XmlFileAdapter {
 		return eq;
 	}
 	
+	public boolean isEquationParameter(Node item) {
+		Node parent = item.getParentNode();
+		return item.getNodeName().equals("Params") && parent.getNodeName().equals("Units");
+	}
+	
 	private void buildElementMap(Node element){	
 		elementMap.put(nodeCounter++, element);		
 		if(isEquationParameter(element)){
@@ -115,11 +119,6 @@ public class XmlFileAdapter {
 		}
 	}
 	
-	private boolean isEquationParameter(Node item) {
-		Node parent = item.getParentNode();
-		return item.getNodeName().equals("Params") && parent.getNodeName().equals("Units");
-	}
-
 	private void checkIfIsUnitsElement(Document doc){
 		hasUnits = doc.getElementsByTagName("Units").getLength() > 0;
 	}
