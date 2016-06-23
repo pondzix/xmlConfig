@@ -20,7 +20,26 @@ public class UnitService {
 		this.fileService = fileService;
 		setGaugeCalculator();
 	}
+	
+	public String calculateGauge(String param) throws SolutionNotFoundException, InvalidInputParameterException{
+		if(param.matches(UnitUtils.mainRegex)){
+			//gauge
+			return Double.toString(gaugeCalculator.calculateGauge(param));
+		}
+		else if(param.matches(UnitUtils.numberRegex))
+			return param;
+		else
+			return "";
+	}
 
+	public Map<Integer, String> getGauges() throws SolutionNotFoundException, InvalidInputParameterException {
+		Map<Integer, String> gaugeMap = new HashMap<>();
+		for(Map.Entry<Integer, String> entry: fileService.getValuesWithGauge().entrySet())
+			gaugeMap.put(entry.getKey(), calculateGauge(entry.getValue()));
+					
+		return gaugeMap;
+	}
+	
 	private void setGaugeCalculator() throws InvalidInputParameterException {
 		if(fileService.getFileModel().hasUnits())
 			gaugeCalculator = new GaugeCalculatorWithUnits(getEquations());
@@ -38,22 +57,9 @@ public class UnitService {
 		return eq;
 		
 	}
-	
-	public String calculateGauge(String param) throws SolutionNotFoundException, InvalidInputParameterException{
-		if(param.matches(UnitUtils.mainRegex))
-			return Double.toString(gaugeCalculator.calculateGauge(param));
-		else if(param.matches(UnitUtils.numberRegex))
-			return param;
-		else
-			return "";
-	}
 
-	public Map<Integer, String> getGauges() throws SolutionNotFoundException, InvalidInputParameterException {
-		Map<Integer, String> gaugeMap = new HashMap<>();
-		for(Map.Entry<Integer, String> entry: fileService.getValuesWithGauge().entrySet())
-			gaugeMap.put(entry.getKey(), calculateGauge(entry.getValue()));
-					
-		return gaugeMap;
+	public void updateEquations() throws InvalidInputParameterException {
+		gaugeCalculator = new GaugeCalculatorWithUnits(getEquations());	
 	}
 		
 	

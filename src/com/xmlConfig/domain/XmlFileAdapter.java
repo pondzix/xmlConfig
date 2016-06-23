@@ -77,6 +77,7 @@ public class XmlFileAdapter {
 	
 	public Map<String, String> getEquations(){
 		Map<String, String> eq = new HashMap<>();
+		printE();
 		for(Map.Entry<Integer, Integer> entry: equations.entrySet())
 			eq.put(elementMap.get(entry.getKey()).getNodeValue(), elementMap.get(entry.getValue()).getNodeValue());
 		

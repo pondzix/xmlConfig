@@ -92,15 +92,14 @@ public class XmlController {
 		try {
 			gauge = unitService.calculateGauge(param);
 		} catch (SolutionNotFoundException e) {
-			
+			e.printStackTrace();
 		} catch (InvalidInputParameterException e) {
-			
+			e.printStackTrace();
 		}		
 		return gauge;
 	}
 
-	public Map<Integer, String> getGauges() {
-		
+	public Map<Integer, String> getGauges() {		
 		try {
 			return unitService.getGauges();
 		} catch (SolutionNotFoundException e) {
@@ -112,6 +111,20 @@ public class XmlController {
 		}
 		
 		return null;
+	}
+
+	public void updateUnits(Command command) {	
+		try {
+			fileService.updateNameOrValue(command);
+			unitService.updateEquations();
+		} catch (InvalidInputParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalFileModification e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	

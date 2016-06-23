@@ -12932,3 +12932,13 @@ div.v-layout.v-horizontal.v-widget {
 	width: 19px;
 	overflow: hidden;
 }
+
+.firstvaad .info {
+	color: red;
+}
+
+.firstvaad .v-table-cell-content-params {
+	background-color: #D0D0D0;
+	font-weight: bold;
+	font-style: italic;
+}
