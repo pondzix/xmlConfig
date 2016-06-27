@@ -5,7 +5,10 @@ import com.vaadin.shared.ui.JavaScriptComponentState;
 @SuppressWarnings("serial")
 public class JsLabelState extends JavaScriptComponentState{
 	
-	public String nx;
-	public String ny;
-	public String nz;
+	public String[] geometry;
+	public String[] box;
+	public String[] wedge;
+	public boolean geometrySizeChange;
+	public boolean boxSizeChange;
+	public boolean wedgeSizeChange;
 }

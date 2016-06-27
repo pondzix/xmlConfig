@@ -2,6 +2,7 @@ package com.xmlConfig.view;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,6 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 
 import javax.servlet.annotation.WebServlet;
-
 
 import com.vaadin.addon.contextmenu.ContextMenu;
 import com.vaadin.addon.contextmenu.Menu;
@@ -68,11 +68,13 @@ public class XmlMainView extends UI implements XmlView {
 	private ComboBox fileList;
 	private ContextMenu contextMenu;
 	private List<Integer> paramsItems = new ArrayList<>();
-	private JsLabel lab = new JsLabel("1000");
-	private ThemeResource res = new ThemeResource("index.html");
-	private BrowserFrame frame = new BrowserFrame("Static", res);
+	private Map<String, ArrayList<Integer>> boxViewItems = new HashMap<>();
+	private JsLabel lab;
+	private ThemeResource res;
+	private BrowserFrame frame;
 	private HorizontalSplitPanel horizontalSplit = new HorizontalSplitPanel();
 	private VerticalSplitPanel verticalSplit = new VerticalSplitPanel();
+	private BoxViewUpdateService boxService;
 	
 	private int itemCounter;
 	private int selectedItemId;
@@ -83,6 +85,12 @@ public class XmlMainView extends UI implements XmlView {
 	private final String GAUGE_PROPERTY = "Gauge";
 	private final String GENERATED_NAME = "NEW";
 	private final String INFO = "Left click - edit, Right click - context menu";
+	private final String GEOMETRY = "Geometry";
+	private final String PARAMS= "Params";
+	private final String UNITS = "Units";
+	private final String BOX = "Box";
+	private final String WEDGE = "Wedge";
+	
 	
 	
 	@WebServlet(value = "/*", asyncSupported = true)
@@ -94,9 +102,7 @@ public class XmlMainView extends UI implements XmlView {
 	protected void init(VaadinRequest request) {	
 		initComponents();
 		addComponents();
-		setComponentListeners();	
-		
-		
+		setComponentListeners();			
 	}
 	
 	@Override
@@ -169,14 +175,17 @@ public class XmlMainView extends UI implements XmlView {
 		fileList.setInputPrompt("SELECT FILE");
 		fileList.addItems(names);
 		fileList.setValue(names.get(0));
-		
-		
+			
 		filePanel = new HorizontalLayout();
 		layout = new VerticalLayout();
 		layout.setMargin(true);
 		
+		lab = new JsLabel();
+		res = new ThemeResource("index.html");
+		frame = new BrowserFrame("Static", res);
 		frame.setWidth("100%");
 		frame.setHeight("100%");
+		boxService = new BoxViewUpdateService(lab);
 		
 		verticalSplit.setMaxSplitPosition(15f, Unit.PERCENTAGE);
 		verticalSplit.setFirstComponent(filePanel);
@@ -184,11 +193,9 @@ public class XmlMainView extends UI implements XmlView {
 		horizontalSplit.setFirstComponent(layout);
 		horizontalSplit.setSecondComponent(frame);
 		
-		setContent(verticalSplit);
-
+		setContent(verticalSplit);	
 		info = new Label(INFO);
 		info.setVisible(false);
-		info.setStyleName("lol");
 		saveButton = new Button("SAVE");
 		saveButton.setEnabled(false);
 		loadButton = new Button("LOAD");
@@ -200,6 +207,7 @@ public class XmlMainView extends UI implements XmlView {
 		if(tree != null){
 			layout.removeComponent(tree);			
 			paramsItems.clear();
+			boxViewItems.clear();
 		}
 		
 		container = new HierarchicalContainer();	
@@ -216,6 +224,9 @@ public class XmlMainView extends UI implements XmlView {
 		setTreeListener();
 		initContextMenu();
 		itemCounter = 0;
+		boxViewItems.put(GEOMETRY, new ArrayList<Integer>());
+		boxViewItems.put(BOX, new ArrayList<Integer>());
+		boxViewItems.put(WEDGE, new ArrayList<Integer>());
 		layout.addComponent(tree);	
 		
 		tree.setCellStyleGenerator( new Table.CellStyleGenerator(){
@@ -244,30 +255,42 @@ public class XmlMainView extends UI implements XmlView {
 	        	Node node = children.item(i);
 	        	if(node instanceof Element){
 	        		int childId = ++itemCounter;    
-	        		if(!node.getNodeName().equals("Params")){
-	        			if(node.getNodeName().equals("Geometry")){
-		        			Element e = (Element)node;
-		        			String nx = e.getAttribute("nx").replace("m", "") + "00";
-		        			String ny = e.getAttribute("ny").replace("m", "") + "00";
-		        			String nz = e.getAttribute("nz").replace("m", "") + "00";
-		        			lab.setState(nx, ny, nz);
-	        			}
+	        		if(!node.getNodeName().equals(PARAMS)){        			
+	        			setJsView((Element)node);    			
 	        			tree.addItem(getArrayOfTreeComponent(node.getNodeName(), node.getNodeValue(), ""), childId);
 			            tree.setParent(childId, parentId);
 			            addAttributesToTree(node, childId);
 			            addChildrenToTree(node.getChildNodes(), childId);
-	        		} else if(node.getParentNode().getNodeName().equals("Units"))	        		
+	        		} else if(node.getParentNode().getNodeName().equals(UNITS))	        		
 	        			addUnitsPanelToTree((Element)node, childId, parentId);	        			
 	        		  else {        			
 	        			addAttributesToTree(node, parentId);
 			            addChildrenToTree(node.getChildNodes(), parentId);
-	        		}
-	        		
-		            
+	        		}	            
 	        	}	        	
 	        }
 	    }
 	}	
+	
+	private void setJsView(Element element){
+		String name = element.getNodeName();
+		switch(name){
+			case GEOMETRY:
+				boxService.setGeometry(element);
+				break;
+			case BOX:
+				boxService.setBox(element);
+				break;
+			case WEDGE:
+				boxService.setWedge(element);
+		}
+	}
+	
+	private boolean isBoxViewItem(String name){
+		return name.equals(GEOMETRY) ||
+			   name.equals(BOX) ||
+			   name.equals(WEDGE);
+	}
 	
 	private  void addAttributesToTree(Node node, int parentId){
 		 if(node.hasAttributes()){
@@ -277,6 +300,8 @@ public class XmlMainView extends UI implements XmlView {
 	        	    tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue(), ""), childId);
 	        		tree.setParent(childId, parentId);
 	        		tree.setChildrenAllowed(childId, false);
+	        		if(isBoxViewItem(node.getNodeName()))
+	        			boxViewItems.get(node.getNodeName()).add(childId);
 	        	}
 	        }
 	}
@@ -386,12 +411,28 @@ public class XmlMainView extends UI implements XmlView {
         	    if(paramsItems.contains(command.getItemId())){
         	    	controller.updateUnits(command);
         	    	getGauges();
-        	    } else 
-        	    	controller.updateNameOrValue(command);   
-        	     	       
+        	    } else if(boxViewItems.get(GEOMETRY).contains(command.getItemId())){
+        	    	 controller.updateNameOrValue(command);        	  
+        	    	 boxService.updateGeometry(getItemName(command.getItemId()), field.getValue());
+        	    } else if(boxViewItems.get(BOX).contains(command.getItemId())){
+	       	    	 controller.updateNameOrValue(command);        	  
+	       	    	 boxService.updateBox(getItemName(command.getItemId()), field.getValue());
+        	    } else if(boxViewItems.get(WEDGE).contains(command.getItemId())){
+        	    	 controller.updateNameOrValue(command);        	  
+	       	    	 boxService.updateWedge(getItemName(command.getItemId()), field.getValue());
+        	    	
+        	    } else
+       	    	     controller.updateNameOrValue(command);        	  
+        	         	      	       
         	    containerProperty.setValue(getTreeComponent(field.getValue()));
         	}
 		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String getItemName(int id){
+		 Property<Component> containerProperty = tree.getContainerProperty(id, ELEMENT_PROPERTY);	
+		 return ((Label)containerProperty.getValue()).getValue();
 	}
 	
 	private void initContextMenu() {

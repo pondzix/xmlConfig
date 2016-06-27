@@ -7,11 +7,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.yaml.snakeyaml.Yaml;
-
-import com.xmlConfig.exception.IllegalFileModification;
 
 @SuppressWarnings("rawtypes")
 public class NodeValidation {
