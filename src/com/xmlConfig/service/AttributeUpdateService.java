@@ -31,15 +31,15 @@ public class AttributeUpdateService implements UpdateService{
 				owner.setAttribute(attribute.getName(), command.getNewValue());	
 				fileModel.updateItem(command.getItemId(), owner.getAttributeNode(attribute.getName()));
 				break;			
-			case CHANGE_NAME:
+			case CHANGE_NAME:							
+				owner.removeAttributeNode(attribute);
+				owner.setAttribute(command.getNewValue(), attribute.getValue());
+				fileModel.updateItem(command.getItemId(), owner.getAttributeNode(command.getNewValue()));	
+				
 				if(!nodeValidation.isValidAttribute(owner, command.getNewValue()))
 					throw new IllegalFileModification("Invalid name for attribute");	
 				if(owner.getAttributeNode(command.getNewValue()) != null)
 					throw new IllegalFileModification("Attribute already exists");	
-				
-				owner.removeAttributeNode(attribute);
-				owner.setAttribute(command.getNewValue(), attribute.getValue());
-				fileModel.updateItem(command.getItemId(), owner.getAttributeNode(command.getNewValue()));			
 				break;
 			default:
 				break;		

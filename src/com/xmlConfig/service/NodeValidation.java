@@ -28,7 +28,7 @@ public class NodeValidation {
 	private void init() {
 		InputStream input = null;
 		try {
-			input = new FileInputStream(new File("C:/xmlTest/elements.yml"));
+			input = new FileInputStream(new File("/var/lib/openshift/57123bcb89f5cff1ef0000cc/app-root/data/elements.yml"));
 		} catch (FileNotFoundException e) {			
 			e.printStackTrace();
 		}

@@ -2,13 +2,39 @@
 			var container;
 			var camera, controls, scene, renderer;
 			var objects = [], plane;
-			
+			var geom;
 
 			var raycaster = new THREE.Raycaster();
 			var mouse = new THREE.Vector2(),
 			offset = new THREE.Vector3(),
 			INTERSECTED, SELECTED;
+			
+			
+			//WEDGE
+			PrismGeometry = function ( vertices, height ) {
 
+				var Shape = new THREE.Shape();
+
+				( function f( ctx ) {
+
+					ctx.moveTo( vertices[0].x, vertices[0].y );
+					for (var i=1; i < vertices.length; i++) {
+						ctx.lineTo( vertices[i].x, vertices[i].y );
+					}
+					ctx.lineTo( vertices[0].x, vertices[0].y );
+
+				} )( Shape );
+
+				var settings = { };
+				settings.amount = height;
+				settings.bevelEnabled = false;
+				THREE.ExtrudeGeometry.call( this, Shape, settings );
+
+};
+
+			PrismGeometry.prototype = Object.create( THREE.ExtrudeGeometry.prototype );
+			
+		
 			controls = { enabled: true };
 			function init() {
 
@@ -44,52 +70,55 @@
 				light.shadowMapHeight = 2048;
 		
 				scene.add(light);
-				var x =  window.x;
-				var y = window.y;
-				var z = window.z;
-				console.log(parent.window.xDim);
-				var geometry = new THREE.BoxGeometry(parent.window.nx, parent.window.ny, parent.window.nz);
-				var boxGeometry = new THREE.BoxGeometry( 5, 5, 5 );
+				if(parent.window.defaultGeometryDim &&
+				   parent.window.defaultGeometryDim && 
+				   parent.window.defaultGeometryDim){
+					geom = new THREE.BoxGeometry(parent.window.defaultGeometryDim.nx,
+						     parent.window.defaultGeometryDim.ny,
+							 parent.window.defaultGeometryDim.nz);		
+				} else{
+					geom = new THREE.BoxGeometry(0, 0, 0);
+				}
+				
+			/*	;*/
 
 				
 
-				var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xFF00FF, opacity: 0.5, transparent: true} ) );
-				var box = new THREE.Mesh( boxGeometry, new THREE.MeshLambertMaterial( { color: 0x00FF00, opacity: 1, transparent: true} ) );
+				parent.window.geometry = new THREE.Mesh( geom, new THREE.MeshLambertMaterial( { color: 0xFF0000, wireframe: true} ) );
 				
-				var object = new THREE.BoxHelper( mesh );
-
-				object.position.x = 0;
-				object.position.y = 0;
-				object.position.z = 0;
-
-				object.rotation.x = 0;
-				object.rotation.y = 0;
-				object.rotation.z = 0;
 				
-				box.position.x = 0;
-				box.position.y = 0;
-				box.position.z = 0;
+				parent.window.geometry.position.x = 0;
+				parent.window.geometry.position.y = 0;
+				parent.window.geometry.position.z = 0;
 
-				box.rotation.x = 0;
-				box.rotation.y = 0;
-				box.rotation.z = 0;
+				parent.window.geometry.rotation.x = 0;
+				parent.window.geometry.rotation.y = 0;
+				parent.window.geometry.rotation.z = 0;
 
 
-				//box.castShadow = true;
-				//box.receiveShadow = true;
+				//parent.window.box.castShadow = true;
+				//parent.window.box.receiveShadow = true;
 
-				scene.add( object );
-				scene.add(box);
+				scene.add(parent.window.geometry);
+				//scene.add(parent.window.box);
+				if(window.parent.boxList){
+					addBoxes(scene, objects);
+				}
+				if(window.parent.wedgeList){
+					addWedges(scene, objects);
+				}
+				
+				scene.add( new THREE.AxisHelper(100));
 
-				objects.push( object );
-				objects.push(box);
+				objects.push(parent.window.geometry);
+				//objects.push(parent.window.box);
 
-				//plane = new THREE.Mesh(
-					//new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
-					//new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
-				//);
-				//plane.visible = false;
-				//scene.add( plane );
+				plane = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
+					new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.25, transparent: true } )
+				);
+				plane.visible = false;
+				scene.add( plane );
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha : true} );
 				//renderer.setClearColor( 0x000000 );
@@ -176,8 +205,6 @@
 				container.style.cursor = 'auto';
 			}
 
-			//
-
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
@@ -186,5 +213,42 @@
 			function render() {
 				controls.update();
 				renderer.render( scene, camera );
+			}
+			
+			function addBoxes(scene, objects){					
+				for(var b in window.parent.boxList){
+					var boxItem = window.parent.boxList[b];
+					var boxGeom = new THREE.BoxGeometry(boxItem.defaultBoxDim.nx,
+							boxItem.defaultBoxDim.ny,
+							boxItem.defaultBoxDim.nz);
+					
+					boxItem.box = new THREE.Mesh( boxGeom, new THREE.MeshLambertMaterial( { color:  Math.random() * 0xffffff, opacity: 0.5, transparent: true} ) );
+					boxItem.box.position.x = boxItem.defaultBoxDim.posX;
+					boxItem.box.position.y = boxItem.defaultBoxDim.posY;
+					boxItem.box.position.z = boxItem.defaultBoxDim.posZ;
+					scene.add(boxItem.box);
+					objects.push(boxItem.box);
+				}			
+			}
+			
+			function addWedges(scene, objects){					
+				for(var w in window.parent.wedgeList){
+					var wedgeItem = window.parent.wedgeList[w];
+					var A = new THREE.Vector2(wedgeItem.wedgeDim.A[0], wedgeItem.wedgeDim.A[1], wedgeItem.wedgeDim.A[2]);
+					var B = new THREE.Vector2(wedgeItem.wedgeDim.B[0], wedgeItem.wedgeDim.B[1], wedgeItem.wedgeDim.B[2]);
+					var C = new THREE.Vector2(wedgeItem.wedgeDim.C[0], wedgeItem.wedgeDim.C[1], wedgeItem.wedgeDim.C[2]);
+					var height = wedgeItem.wedgeDim.height;
+					var wedgeGeom = new PrismGeometry( [ A, B, C ], height ); 
+					var material = new THREE.MeshPhongMaterial( { color: 0x00b2fc, specular: 0x00ffff, shininess: 20, opacity: 0.5, transparent: true} );
+					wedgeItem.wedge = new THREE.Mesh( wedgeGeom, material);
+					
+					
+					wedgeItem.wedge.position.x = wedgeItem.defaultWedgeDim.posX;
+					wedgeItem.wedge.position.y = wedgeItem.defaultWedgeDim.posY;
+					wedgeItem.wedge.position.z = wedgeItem.defaultWedgeDim.posZ;
+
+					scene.add(wedgeItem.wedge);
+					objects.push(wedgeItem.wedge);
+				}			
 			}
 			

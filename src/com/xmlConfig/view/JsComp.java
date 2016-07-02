@@ -8,17 +8,17 @@ import com.vaadin.annotations.JavaScript;
 import com.vaadin.ui.AbstractJavaScriptComponent;
 
 @JavaScript({"com_xmlConfig_view_JsLabel.js"})
-public class JsLabel extends AbstractJavaScriptComponent{
+public class JsComp extends AbstractJavaScriptComponent{
 	
 	private static final long serialVersionUID = 1L;
 	private List<String> dimensions = new ArrayList<>();
 	
-	public JsLabel(){
+	public JsComp(){
 		getState().box = new String[6];
 		getState().geometry = new String[3];
 		init(getState().box);
 		init(getState().geometry);
-		init(getState().wedge);
+		//init(getState().wedge);
 		initMap();
 	}
 	

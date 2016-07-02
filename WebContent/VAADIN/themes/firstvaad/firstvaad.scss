@@ -32,13 +32,17 @@
 @mixin firstvaad {
   @include valo;
   
-  .info {
-  color: red;
-  }
-  
   .v-table-cell-content-params{
   background-color: #D0D0D0 ;
   font-weight: bold;
   font-style: italic;
+  }
+  
+   .v-table-cell-content-error{
+  background-color: #FF0000 ;
+  }
+  
+  .error{
+  background-color: #FF4D4D ;
   }
 }
