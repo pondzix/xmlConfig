@@ -17,7 +17,6 @@ import com.xmlConfig.view.jsComponent.JsWedgeComponent;
 
 public class JsViewUpdateService {
 
-	//private JsComp connector;
 	private Map<Integer, JsXmlComponent> components = new HashMap<>();
 	private ThemeResource res;
 	private BrowserFrame frame;
@@ -96,53 +95,5 @@ public class JsViewUpdateService {
 		for(int i = 0; i < attr.getLength(); i++)
 			component.setState(id, attr.item(i).getNodeName(),
 					           convertDimension(attr.item(i).getNodeValue()));	
-	}
-	
-	/*
-	
-	
-	public void setGeometry(Element geometry){
-		String nx = convertDimension("nx", geometry);
-		String ny = convertDimension("ny", geometry);
-		String nz = convertDimension("nz", geometry);
-		connector.setGeometryState(nx, ny, nz);
-	}
-	
-	public void setBox(Element box){
-		connector.setBoxState(convertDimension("nx", box),
-							  convertDimension("ny", box),
-							  convertDimension("nz", box),
-							  convertDimension("dx", box),
-							  convertDimension("dy", box),
-							  convertDimension("dz", box));
-	}
-	
-	public void setWedge(Element wedge){
-		connector.setWedgeState(convertDimension("nx", wedge),
-				  convertDimension("ny", wedge),
-				  convertDimension("nz", wedge),
-				  convertDimension("dx", wedge),
-				  convertDimension("dy", wedge),
-				  convertDimension("dz", wedge));
-		
-	}
-	
-	public void updateGeometry(String name, String value){	
-		connector.updateGeometryState(name, convertDimension(value));
-	}
-	
-	public void updateBox(String name, String value){
-		connector.updateBoxState(name, convertDimension(value));
-	}
-	
-	public void updateWedge(String name, String value){
-		connector.updateWedgeState(name, convertDimension(value));
-	}
-	private String convertDimension(String name, Element element){
-		String value = element.getAttribute(name);
-		return convertDimension(value);		
-	}
-	
-*/
-	
+	}	
 }

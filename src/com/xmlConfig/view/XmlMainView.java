@@ -2,7 +2,6 @@ package com.xmlConfig.view;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import com.vaadin.addon.contextmenu.Menu;
 import com.vaadin.addon.contextmenu.MenuItem;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.HierarchicalContainer;
@@ -67,7 +65,6 @@ public class XmlMainView extends UI implements XmlView {
 	private ComboBox fileList;
 	private ContextMenu contextMenu;
 	private List<Integer> paramsItems = new ArrayList<>();
-	private Map<String, ArrayList<Integer>> jsViewItems = new HashMap<>();
 	private HorizontalSplitPanel horizontalSplit = new HorizontalSplitPanel();
 	private VerticalSplitPanel verticalSplit = new VerticalSplitPanel();
 	private JsViewUpdateService jsService;
@@ -81,11 +78,8 @@ public class XmlMainView extends UI implements XmlView {
 	private final String GAUGE_PROPERTY = "Gauge";
 	private final String GENERATED_NAME = "NEW";
 	private final String INFO = "Left click - edit, Right click - context menu";
-	private final String GEOMETRY = "Geometry";
 	private final String PARAMS= "Params";
 	private final String UNITS = "Units";
-	private final String BOX = "Box";
-	private final String WEDGE = "Wedge";
 	private boolean hasError = false;
 	
 	
@@ -210,9 +204,6 @@ public class XmlMainView extends UI implements XmlView {
 		setTreeListener();
 		initContextMenu();
 		itemCounter = 0;
-		jsViewItems.put(GEOMETRY, new ArrayList<Integer>());
-		jsViewItems.put(BOX, new ArrayList<Integer>());
-		jsViewItems.put(WEDGE, new ArrayList<Integer>());
 		layout.addComponent(tree);	
 		
 		tree.setCellStyleGenerator( new Table.CellStyleGenerator(){
@@ -258,12 +249,6 @@ public class XmlMainView extends UI implements XmlView {
 	    }
 	}	
 
-	private boolean isBoxViewItem(String name){
-		return name.equals(GEOMETRY) ||
-			   name.equals(BOX) ||
-			   name.equals(WEDGE);
-	}
-	
 	private  void addAttributesToTree(Node node, int parentId){
 		 if(node.hasAttributes()){
 	        	NamedNodeMap attr = node.getAttributes();
@@ -272,8 +257,6 @@ public class XmlMainView extends UI implements XmlView {
 	        	    tree.addItem(getArrayOfTreeComponent(attr.item(j).getNodeName(), attr.item(j).getNodeValue(), ""), childId);
 	        		tree.setParent(childId, parentId);
 	        		tree.setChildrenAllowed(childId, false);
-	        		if(isBoxViewItem(node.getNodeName()))
-	        			jsViewItems.get(node.getNodeName()).add(childId);
 	        	}
 	        }
 	}

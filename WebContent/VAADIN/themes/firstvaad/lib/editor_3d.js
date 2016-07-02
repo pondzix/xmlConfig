@@ -79,10 +79,6 @@
 				} else{
 					geom = new THREE.BoxGeometry(0, 0, 0);
 				}
-				
-			/*	;*/
-
-				
 
 				parent.window.geometry = new THREE.Mesh( geom, new THREE.MeshLambertMaterial( { color: 0xFF0000, wireframe: true} ) );
 				
@@ -96,11 +92,7 @@
 				parent.window.geometry.rotation.z = 0;
 
 
-				//parent.window.box.castShadow = true;
-				//parent.window.box.receiveShadow = true;
-
 				scene.add(parent.window.geometry);
-				//scene.add(parent.window.box);
 				if(window.parent.boxList){
 					addBoxes(scene, objects);
 				}
@@ -111,7 +103,7 @@
 				scene.add( new THREE.AxisHelper(100));
 
 				objects.push(parent.window.geometry);
-				//objects.push(parent.window.box);
+
 
 				plane = new THREE.Mesh(
 					new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
@@ -176,7 +168,6 @@
 				event.preventDefault();
 				var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 ).unproject( camera );
 			raycaster.setFromCamera( mouse, camera );
-//			var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 				var intersects = raycaster.intersectObjects( objects );
 				if ( intersects.length > 0 ) {
 					controls.enabled = false;
