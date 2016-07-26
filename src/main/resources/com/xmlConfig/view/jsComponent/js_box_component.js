@@ -5,24 +5,27 @@ window.com_xmlConfig_view_jsComponent_JsBoxComponent = function() {
   this.onStateChange = function() {
 	  if(this.getState().sizeChange){
 		  var boxItem = boxList[this.getState().boxId];
-		  calculateBoxDimensions(this.getState(), boxItem.boxDim);	   
-		    var scaleX = boxItem.boxDim.nx / boxItem.defaultBoxDim.nx;
-	      	var scaleY = boxItem.boxDim.ny / boxItem.defaultBoxDim.ny;
-	      	var scaleZ = boxItem.boxDim.nz / boxItem.defaultBoxDim.nz;
-	      	boxItem.box.scale.set(scaleX, scaleY, scaleZ);
-	      	boxItem.box.position.x = boxItem.boxDim.posX;
-			boxItem.box.position.y = boxItem.boxDim.posY;
-			boxItem.box.position.z = boxItem.boxDim.posZ;      	
+		  calculateBoxDimensionsFromState(this.getState(), boxItem.boxDim);
+		  setBoxScale(boxItem);
+		  setBoxPosition(boxItem);
 	  } else {
-		  var b = {box : {}, boxDim : {}, defaultBoxDim : {}};
+		  var b = {box : {}, boxDim : {}, defaultBoxDim : {}, initParameters: {}};
+		  setInitParameters(this.getState(), b.initParameters);
+		  calculateBoxDimensionsFromState(this.getState(), b.defaultBoxDim);
+	      setDefaultBoxDimensions(b.boxDim, b.defaultBoxDim);
 		  boxList[this.getState().boxId] = b;
-		  calculateBoxDimensions(this.getState(), boxList[this.getState().boxId].defaultBoxDim);
-	      setBoxDimensions(boxList[this.getState().boxId].boxDim, boxList[this.getState().boxId].defaultBoxDim);	 		  
 	  }		   
   };
 };
-
-function calculateBoxDimensions(state, box){	
+function setInitParameters(state, initParameters){
+	initParameters.dx = state.dx;
+	initParameters.dy = state.dy;
+	initParameters.dz = state.dz;
+	initParameters.nx = state.nx;
+	initParameters.ny = state.ny;
+	initParameters.nz = state.nz;
+}
+function calculateBoxDimensionsFromState(state, box){
 	box.dx = (state.dx) ? state.dx : '0';
 	box.dy = (state.dy) ? state.dy : '0';
 	box.dz = (state.dz) ? state.dz : '0';
@@ -31,7 +34,31 @@ function calculateBoxDimensions(state, box){
 	box.nz = (state.nz) ? state.nz : geometryDim.nz - box.dz;
     calculateBoxPosition(box); 
 }
+function calculateBoxLength(boxItem){
+	if(!boxItem.initParameters.dx){
+		boxItem.boxDim.nx = geometryDim.nx - boxItem.boxDim.dx;
+	}
+	if(!boxItem.initParameters.dy){
+		boxItem.boxDim.ny = geometryDim.ny - boxItem.boxDim.dy;
+	}
+	if(!boxItem.initParameters.dz){
+		boxItem.boxDim.nz = geometryDim.nz - boxItem.boxDim.dz;
+	}
+	calculateBoxPosition(boxItem.boxDim);
+}
 
+function setBoxScale(boxItem){
+	var scaleX = boxItem.boxDim.nx / boxItem.defaultBoxDim.nx;
+	var scaleY = boxItem.boxDim.ny / boxItem.defaultBoxDim.ny;
+	var scaleZ = boxItem.boxDim.nz / boxItem.defaultBoxDim.nz;
+	boxItem.box.scale.set(scaleX, scaleY, scaleZ);
+}
+
+function setBoxPosition(boxItem){
+	boxItem.box.position.x = boxItem.boxDim.posX;
+	boxItem.box.position.y = boxItem.boxDim.posY;
+	boxItem.box.position.z = boxItem.boxDim.posZ;
+}
 function calculateBoxPosition(box){
 	if(box.dx > 0){
 		box.posX = (- geometryDim.nx / 2) + (box.dx / 1) + (box.nx / 2);
@@ -52,7 +79,7 @@ function calculateBoxPosition(box){
 	}
 }
 
-function setBoxDimensions(currentDim, defaultDim){
+function setDefaultBoxDimensions(currentDim, defaultDim){
 	currentDim.nx = defaultDim.nx;
 	currentDim.ny = defaultDim.ny;
 	currentDim.nz = defaultDim.nz;
