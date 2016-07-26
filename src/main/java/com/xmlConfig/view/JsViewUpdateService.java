@@ -7,7 +7,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.AbstractJavaScriptComponent;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -41,28 +40,12 @@ public class JsViewUpdateService {
 	}
 	
 	public void addComponent(Element element, int id){
-		JsXmlComponent component;
-		switch(element.getNodeName()){
-			case "Geometry":
-				component = new JsGeometryComponent();
-				components.put(id, component);
-				filePanel.addComponent((AbstractJavaScriptComponent)component);
-				filePanel.addComponent((AbstractJavaScriptComponent)component);
-				setComponentState(id, element, component);
-				break;
-			case "Box":
-				component = new JsBoxComponent();
-				components.put(id, component);
-				filePanel.addComponent((AbstractJavaScriptComponent)component);
-				setComponentState(id, element, component);
-				break;
-			case "Wedge":
-				component = new JsWedgeComponent();
-				components.put(id, component);
-				filePanel.addComponent((AbstractJavaScriptComponent)component);
-				setComponentState(id, element, component);
-				break;
-		}	
+		JsXmlComponent component = xmlComponentFactory(element.getNodeName());
+		if(component != null){
+			components.put(id, component);
+			filePanel.addComponent(component);
+			setComponentState(id, element, component);
+		}
 	}
 	
 	public void updateComponent(int id, String propertyName, String value){
@@ -73,7 +56,7 @@ public class JsViewUpdateService {
 	
 	private void removeJsComponents() {
 		for(JsXmlComponent c: components.values())
-			filePanel.removeComponent((AbstractJavaScriptComponent)c);		
+			filePanel.removeComponent(c);
 	}
 	
 	private void setFrame(){
@@ -95,5 +78,17 @@ public class JsViewUpdateService {
 		for(int i = 0; i < attr.getLength(); i++)
 			component.setState(id, attr.item(i).getNodeName(),
 					           convertDimension(attr.item(i).getNodeValue()));	
-	}	
+	}
+
+	private JsXmlComponent xmlComponentFactory(String type) {
+		switch (type) {
+			case "Geometry":
+				return new JsGeometryComponent();
+			case "Box":
+				return new JsBoxComponent();
+			case "Wedge":
+				return new JsWedgeComponent();
+		}
+		return null;
+	}
 }

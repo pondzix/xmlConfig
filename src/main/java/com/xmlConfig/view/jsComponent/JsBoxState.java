@@ -2,10 +2,9 @@ package com.xmlConfig.view.jsComponent;
 
 import com.vaadin.shared.ui.JavaScriptComponentState;
 
-public class JsBoxState extends JavaScriptComponentState{
+public class JsBoxState extends JsXmlComponentState{
 
 	private static final long serialVersionUID = 1L;
-	public boolean sizeChange;
 	public int boxId;
 	public String nx;
 	public String ny;

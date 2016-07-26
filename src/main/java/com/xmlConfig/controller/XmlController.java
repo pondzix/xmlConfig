@@ -48,7 +48,9 @@ public class XmlController {
 			view.showMessage("FILE SAVED");
 		} catch (ParserConfigurationException | TransformerException e) {	
 			view.showMessage("CAN NOT SAVE FILE");	
-		}	 
+		} catch (IllegalFileModification illegalFileModification) {
+			illegalFileModification.printStackTrace();
+		}
 	}
 
 	public void updateNameOrValue(Command command) {
@@ -126,8 +128,4 @@ public class XmlController {
 		}
 		
 	}
-	
-	
-	
-
 }

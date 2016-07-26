@@ -6,15 +6,15 @@ import org.w3c.dom.Node;
 
 import com.xmlConfig.domain.ActionType;
 import com.xmlConfig.domain.Command;
-import com.xmlConfig.domain.XmlFileAdapter;
+import com.xmlConfig.domain.FileAdapter;
 import com.xmlConfig.exception.IllegalFileModification;
 
 public class AttributeUpdateService implements UpdateService{
 
-	private XmlFileAdapter fileModel;
+	private FileAdapter fileModel;
 	private NodeValidation nodeValidation = new NodeValidation();
 	
-	public AttributeUpdateService(XmlFileAdapter fileModel) {
+	public AttributeUpdateService(FileAdapter fileModel) {
 		this.fileModel = fileModel;
 	}
 	

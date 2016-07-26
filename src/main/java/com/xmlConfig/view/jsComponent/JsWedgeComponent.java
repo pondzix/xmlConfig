@@ -1,19 +1,13 @@
 package com.xmlConfig.view.jsComponent;
 
 import com.vaadin.annotations.JavaScript;
-import com.vaadin.ui.AbstractJavaScriptComponent;
 import com.xmlConfig.view.JsXmlComponent;
 
-@JavaScript({"com_xmlConfig_view_jsComponent_JsWedgeComponent.js"})
-public class JsWedgeComponent extends AbstractJavaScriptComponent implements JsXmlComponent{
+
+@JavaScript({"js_wedge_component.js"})
+public class JsWedgeComponent extends JsXmlComponent {
 	private static final long serialVersionUID = 1L;
 
-	@Override
-	public void updateState(String name, String value) {
-		getState().sizeChange = true;
-		setProperty(name, value);
-	}
-	
 	@Override
 	protected JsWedgeState getState(){
 		return (JsWedgeState) super.getState();
@@ -24,10 +18,10 @@ public class JsWedgeComponent extends AbstractJavaScriptComponent implements JsX
 		getState().wedgeId = id;
 		getState().sizeChange = false;
 		setProperty(name, value);
-		
 	}
-	
-	private void setProperty(String name, String value){
+
+	@Override
+	public void setProperty(String name, String value){
 		switch(name){
 			case "direction":
 				getState().orientation = value;

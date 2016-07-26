@@ -4,14 +4,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.xmlConfig.domain.Command;
-import com.xmlConfig.domain.XmlFileAdapter;
+import com.xmlConfig.domain.FileAdapter;
 import com.xmlConfig.exception.IllegalFileModification;
 
 public class UnitsUpdateService implements UpdateService{
 
-   private XmlFileAdapter fileModel;
+   private FileAdapter fileModel;
 	
-	public UnitsUpdateService(XmlFileAdapter fileModel) {
+	public UnitsUpdateService(FileAdapter fileModel) {
 		this.fileModel = fileModel;
 	}
 	
@@ -27,10 +27,10 @@ public class UnitsUpdateService implements UpdateService{
 				fileModel.updateItem(command.getItemId() + 1, owner.getAttributeNode("gauge"));
 				break;
 			case CHANGE_UNIT_NAME:
-				
+				//TODO
 				break;
 			case CHANGE_UNIT_VALUE:
-				
+				//TODO
 				break;
 			default:
 				break;	

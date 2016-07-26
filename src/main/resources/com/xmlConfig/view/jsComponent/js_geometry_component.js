@@ -4,7 +4,7 @@ var geometry, box, scaleX, scaleY, scaleZ;
 var boxList = {};
 var wedgeList = {};
 
-com_xmlConfig_view_jsComponent_JsGeometryComponent = function() {
+window.com_xmlConfig_view_jsComponent_JsGeometryComponent = function() {
 
   this.onStateChange = function() {
 	  if(!this.getState().sizeChange){
@@ -23,7 +23,6 @@ com_xmlConfig_view_jsComponent_JsGeometryComponent = function() {
 	  }		
   };
 };
-
 function clearComponents(){
 	geometryDim = {};
 	defaultGeometryDim = {};

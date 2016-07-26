@@ -1,6 +1,6 @@
 
 
-com_xmlConfig_view_jsComponent_JsWedgeComponent = function() {
+window.com_xmlConfig_view_jsComponent_JsWedgeComponent = function() {
 
   this.onStateChange = function() {
 	  if(this.getState().sizeChange){

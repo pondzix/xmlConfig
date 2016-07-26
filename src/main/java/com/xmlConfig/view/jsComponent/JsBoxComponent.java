@@ -1,19 +1,12 @@
 package com.xmlConfig.view.jsComponent;
 
 import com.vaadin.annotations.JavaScript;
-import com.vaadin.ui.AbstractJavaScriptComponent;
 import com.xmlConfig.view.JsXmlComponent;
 
-@JavaScript({"com_xmlConfig_view_jsComponent_JsBoxComponent.js"})
-public class JsBoxComponent extends AbstractJavaScriptComponent implements JsXmlComponent{
+@JavaScript({"js_box_component.js"})
+public class JsBoxComponent extends JsXmlComponent {
 	private static final long serialVersionUID = 1L;
 
-	@Override
-	public void updateState(String name, String value) {
-		getState().sizeChange = true;
-		setProperty(name, value);
-	}
-	
 	@Override
 	protected JsBoxState getState(){
 		return (JsBoxState) super.getState();
@@ -23,10 +16,11 @@ public class JsBoxComponent extends AbstractJavaScriptComponent implements JsXml
 	public void setState(int id, String name, String value) {
 		getState().boxId = id;
 		getState().sizeChange = false;
-		setProperty(name, value);	
+		setProperty(name, value);
 	}
-	
-	private void setProperty(String name, String value){
+
+	@Override
+	public void setProperty(String name, String value){
 		switch(name){
 			case "nx":
 				getState().nx = value;

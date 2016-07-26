@@ -7,12 +7,15 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import com.xmlConfig.dao.FileDao;
+import com.xmlConfig.dao.YamlFileDaoImpl;
 import org.w3c.dom.Node;
 import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings("rawtypes")
 public class NodeValidation {
-	
+
+	private FileDao fileDao;
 	private Map map;
 	private Map mainTypes;
 	private final String CHILDREN = "children";
@@ -26,10 +29,11 @@ public class NodeValidation {
 	}
 
 	private void init() {
+		fileDao = new YamlFileDaoImpl();
 		InputStream input = null;
 		try {
-			input = new FileInputStream(new File("/var/lib/openshift/57123bcb89f5cff1ef0000cc/app-root/data/elements.yml"));
-		} catch (FileNotFoundException e) {			
+			input = new FileInputStream(fileDao.getFile("elements"));
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		Yaml yaml = new Yaml();	

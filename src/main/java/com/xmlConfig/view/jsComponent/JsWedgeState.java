@@ -1,11 +1,8 @@
 package com.xmlConfig.view.jsComponent;
 
-import com.vaadin.shared.ui.JavaScriptComponentState;
-
-public class JsWedgeState extends JavaScriptComponentState{
+public class JsWedgeState extends JsXmlComponentState{
 
 	private static final long serialVersionUID = 1L;
-	public boolean sizeChange;
 	public int wedgeId;
 	public String orientation;
 	public String nx;

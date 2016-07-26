@@ -10,7 +10,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class XmlFileAdapter {
+public class FileAdapter {
 	
 	private Document document;
 	private String fileName;
@@ -20,12 +20,11 @@ public class XmlFileAdapter {
 	private int nodeCounter;
 	private boolean hasUnits;
 
-	public XmlFileAdapter(Document document, String fileName) {
+	public FileAdapter(Document document, String fileName) {
 		this.document = document;
 		this.fileName = fileName;
 		buildElementMap(document.getDocumentElement());
 		checkIfIsUnitsElement(document);
-		//printE();
 		System.out.println(elementMap);
 	}
 

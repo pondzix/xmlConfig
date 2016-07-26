@@ -1,6 +1,6 @@
 
 
-com_xmlConfig_view_jsComponent_JsBoxComponent = function() {
+window.com_xmlConfig_view_jsComponent_JsBoxComponent = function() {
 
   this.onStateChange = function() {
 	  if(this.getState().sizeChange){
